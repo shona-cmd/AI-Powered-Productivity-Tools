@@ -1,8 +1,8 @@
 {
   "framework": "node",
-  "functions": {
-    "api/**/*.js": {
-"runtime": "nodejs@18"
+"functions": {
+    "api/*.js": {
+      "runtime": "nodejs18.x"
     }
   },
   "routes": [
