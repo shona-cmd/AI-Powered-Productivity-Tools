@@ -1,7 +1,7 @@
 /**
- * Mobile Money Payment API for Vercel
+ * Mobile Money Payment API for Vercel Serverless
  * 
- * This module handles payment verification and token management
+ * Handles payment verification and token management
  * for the AI Productivity Tools mobile money payment system.
  * 
  * IMPORTANT: This is a demo implementation. For production:
@@ -28,21 +28,75 @@ const PAYMENT_CONFIG = {
 };
 
 /**
+ * Main handler for all API requests
+ * Compatible with Vercel Serverless Functions
+ */
+module.exports = async (req, res) => {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    // Handle CORS preflight
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    const method = req.method || 'GET';
+    const url = req.url || '';
+    const [path, queryString] = url.split('?');
+    const query = Object.fromEntries(new URLSearchParams(queryString || ''));
+
+    // Parse body
+    let body = {};
+    if (method === 'POST') {
+        try {
+            body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+        } catch (e) {
+            body = {};
+        }
+    }
+
+    try {
+        // Route requests
+        if (path === '/api/payment/create' && method === 'POST') {
+            return handleCreatePayment(res, body);
+        } else if (path === '/api/payment/verify' && method === 'POST') {
+            return handleVerifyPayment(res, body);
+        } else if (path === '/api/payment/status' && method === 'GET') {
+            return handleGetPaymentStatus(res, query);
+        } else if (path === '/api/packages' && method === 'GET') {
+            return handleGetPackages(res);
+        } else if (path === '/api/transactions' && method === 'GET') {
+            return handleGetTransactions(res, query);
+        } else if (path === '/api/health' && method === 'GET') {
+            return res.status(200).json({
+                status: 'ok',
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            return res.status(404).json({ error: 'Endpoint not found', path, method });
+        }
+    } catch (error) {
+        console.error('API Error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+/**
  * Create a new payment request
  * POST /api/payment/create
  */
-async function createPayment(req, body) {
+async function handleCreatePayment(res, body) {
     const { packageId, phoneNumber, method = 'mobile_money' } = body;
     
-    // Validate package
     if (!PAYMENT_CONFIG.packages[packageId]) {
-        return { status: 400, body: { error: 'Invalid package selected' } };
+        return res.status(400).json({ error: 'Invalid package selected' });
     }
     
     const pkg = PAYMENT_CONFIG.packages[packageId];
     const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
-    // Create payment record
     const payment = {
         id: transactionId,
         packageId,
@@ -53,89 +107,73 @@ async function createPayment(req, body) {
         method,
         status: 'pending',
         createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString() // 30 minutes
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString()
     };
     
     pendingPayments.set(transactionId, payment);
     
-    // Return payment instructions
-    return {
-        status: 200,
-        body: {
-            success: true,
-            transactionId,
-            instructions: {
-                step1: `Send UGX ${pkg.price.toLocaleString()} to ${PAYMENT_CONFIG.phoneNumber} (${PAYMENT_CONFIG.network})`,
-                step2: 'Use your mobile money PIN to confirm',
-                step3: 'Enter the transaction reference below for verification',
-                step4: 'Your tokens will be credited after confirmation'
-            },
-            paymentDetails: {
-                recipient: PAYMENT_CONFIG.phoneNumber,
-                network: PAYMENT_CONFIG.network,
-                amount: pkg.price,
-                currency: PAYMENT_CONFIG.currency,
-                reference: transactionId
-            },
-            expiresIn: '30 minutes'
-        }
-    };
+    return res.status(200).json({
+        success: true,
+        transactionId,
+        instructions: {
+            step1: `Send UGX ${pkg.price.toLocaleString()} to ${PAYMENT_CONFIG.phoneNumber} (${PAYMENT_CONFIG.network})`,
+            step2: 'Use your mobile money PIN to confirm',
+            step3: 'Enter the transaction reference below for verification',
+            step4: 'Your tokens will be credited after confirmation'
+        },
+        paymentDetails: {
+            recipient: PAYMENT_CONFIG.phoneNumber,
+            network: PAYMENT_CONFIG.network,
+            amount: pkg.price,
+            currency: PAYMENT_CONFIG.currency,
+            reference: transactionId
+        },
+        expiresIn: '30 minutes'
+    });
 }
 
 /**
  * Verify a payment
  * POST /api/payment/verify
  */
-async function verifyPayment(req, body) {
+async function handleVerifyPayment(res, body) {
     const { transactionId, mpesaReference, phoneNumber } = body;
     
-    // Find the pending payment
     const payment = pendingPayments.get(transactionId);
     
     if (!payment) {
-        return { status: 404, body: { error: 'Transaction not found' } };
+        return res.status(404).json({ error: 'Transaction not found' });
     }
     
-    // Check if expired
     if (new Date(payment.expiresAt) < new Date()) {
         pendingPayments.delete(transactionId);
-        return { status: 400, body: { error: 'Payment session expired. Please start again.' } };
+        return res.status(400).json({ error: 'Payment session expired. Please start again.' });
     }
     
-    // In production, verify with payment gateway API
-    // For demo, we'll simulate verification
     const isVerified = await simulatePaymentVerification(mpesaReference, payment.amount);
     
     if (isVerified) {
-        // Mark as completed
         payment.status = 'completed';
-        payment.verifiedAt = new Date.toISOString();
+        payment.verifiedAt = new Date().toISOString();
         payment.mpesaReference = mpesaReference;
         
-        // Move to permanent storage
         transactions.set(transactionId, payment);
         pendingPayments.delete(transactionId);
         
-        return {
-            status: 200,
-            body: {
-                success: true,
-                transactionId,
-                status: 'completed',
-                tokens: payment.tokens,
-                message: `Successfully credited ${payment.tokens} tokens to your account`
-            }
-        };
+        return res.status(200).json({
+            success: true,
+            transactionId,
+            status: 'completed',
+            tokens: payment.tokens,
+            message: `Successfully credited ${payment.tokens} tokens to your account`
+        });
     } else {
-        return {
-            status: 400,
-            body: {
-                success: false,
-                status: 'pending',
-                message: 'Payment not yet received. Please complete the payment and try again.',
-                hint: 'If you have sent the payment, wait 1-2 minutes and try verification again.'
-            }
-        };
+        return res.status(400).json({
+            success: false,
+            status: 'pending',
+            message: 'Payment not yet received. Please complete the payment and try again.',
+            hint: 'If you have sent the payment, wait 1-2 minutes and try verification again.'
+        });
     }
 }
 
@@ -143,44 +181,38 @@ async function verifyPayment(req, body) {
  * Check payment status
  * GET /api/payment/status?id=...
  */
-async function getPaymentStatus(req, query) {
+async function handleGetPaymentStatus(res, query) {
     const { id } = query;
     
     const payment = transactions.get(id) || pendingPayments.get(id);
     
     if (!payment) {
-        return { status: 404, body: { error: 'Transaction not found' } };
+        return res.status(404).json({ error: 'Transaction not found' });
     }
     
-    return {
-        status: 200,
-        body: {
-            transactionId: payment.id,
-            status: payment.status,
-            amount: payment.amount,
-            tokens: payment.tokens,
-            createdAt: payment.createdAt
-        }
-    };
+    return res.status(200).json({
+        transactionId: payment.id,
+        status: payment.status,
+        amount: payment.amount,
+        tokens: payment.tokens,
+        createdAt: payment.createdAt
+    });
 }
 
 /**
  * Get all packages
  * GET /api/packages
  */
-async function getPackages(req) {
-    return {
-        status: 200,
-        body: {
-            packages: Object.entries(PAYMENT_CONFIG.packages).map(([id, pkg]) => ({
-                id,
-                ...pkg,
-                formattedPrice: `${PAYMENT_CONFIG.currency} ${pkg.price.toLocaleString()}`
-            })),
-            phoneNumber: PAYMENT_CONFIG.phoneNumber,
-            network: PAYMENT_CONFIG.network
-        }
-    };
+async function handleGetPackages(res) {
+    return res.status(200).json({
+        packages: Object.entries(PAYMENT_CONFIG.packages).map(([id, pkg]) => ({
+            id,
+            ...pkg,
+            formattedPrice: `${PAYMENT_CONFIG.currency} ${pkg.price.toLocaleString()}`
+        })),
+        phoneNumber: PAYMENT_CONFIG.phoneNumber,
+        network: PAYMENT_CONFIG.network
+    });
 }
 
 /**
@@ -188,16 +220,12 @@ async function getPackages(req) {
  * In production, replace with actual API call to payment gateway
  */
 async function simulatePaymentVerification(reference, amount) {
-    // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // For demo: Accept any reference that contains "SUCCESS"
-    // In production: Call actual payment gateway API
     if (reference && reference.toUpperCase().includes('SUCCESS')) {
         return true;
     }
     
-    // Random success for demo (70% chance)
     return Math.random() > 0.3;
 }
 
@@ -205,95 +233,16 @@ async function simulatePaymentVerification(reference, amount) {
  * Get transaction history
  * GET /api/transactions?phone=...
  */
-async function getTransactions(req, query) {
+async function handleGetTransactions(res, query) {
     const { phone } = query;
     
     const userTransactions = Array.from(transactions.values())
         .filter(t => t.phoneNumber === phone || !phone)
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     
-    return {
-        status: 200,
-        body: {
-            transactions: userTransactions,
-            total: userTransactions.length
-        }
-    };
+    return res.status(200).json({
+        transactions: userTransactions,
+        total: userTransactions.length
+    });
 }
-
-/**
- * Handle CORS preflight
- */
-async function handleOptions() {
-    return {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
-        },
-        body: ''
-    };
-}
-
-/**
- * Main handler for all API requests
- */
-async function handler(req, res) {
-    const { method, url } = req;
-    
-    // Handle CORS
-    if (method === 'OPTIONS') {
-        return handleOptions();
-    }
-    
-    // Parse URL and body
-    const [path, queryString] = url.split('?');
-    const query = Object.fromEntries(new URLSearchParams(queryString || ''));
-    
-    let body = {};
-    if (method === 'POST') {
-        try {
-            body = await req.json();
-        } catch (e) {
-            body = {};
-        }
-    }
-    
-    // Route requests
-    try {
-        let response;
-        
-        if (path === '/api/payment/create' && method === 'POST') {
-            response = await createPayment(req, body);
-        } else if (path === '/api/payment/verify' && method === 'POST') {
-            response = await verifyPayment(req, body);
-        } else if (path === '/api/payment/status' && method === 'GET') {
-            response = await getPaymentStatus(req, query);
-        } else if (path === '/api/packages' && method === 'GET') {
-            response = await getPackages(req);
-        } else if (path === '/api/transactions' && method === 'GET') {
-            response = await getTransactions(req, query);
-        } else if (path === '/api/health' && method === 'GET') {
-            response = { status: 200, body: { status: 'ok', timestamp: new Date().toISOString() } };
-        } else {
-            response = { status: 404, body: { error: 'Endpoint not found' } };
-        }
-        
-        // Send response
-        res.status(response.status);
-        if (response.headers) {
-            Object.entries(response.headers).forEach(([key, value]) => {
-                res.setHeader(key, value);
-            });
-        }
-        res.json(response.body);
-        
-    } catch (error) {
-        console.error('API Error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-}
-
-module.exports = handler;
 

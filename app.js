@@ -1,6 +1,6 @@
 /**
- * AI Productivity Tools - Main Application
- * Complete JavaScript application with all AI-powered tools
+ * AI Productivity Tools - Enhanced Main Application
+ * Phase 1 + Phase 2 Implementation
  */
 
 // Application State
@@ -8,11 +8,12 @@ const AppState = {
     currentTool: null,
     userData: {},
     settings: {
-        apiKey: '',
+        apiKey: localStorage.getItem('openai_api_key') || '',
         model: 'gpt-3.5-turbo',
         maxTokens: 500,
         temperature: 0.7
-    }
+    },
+    theme: localStorage.getItem('theme') || 'light'
 };
 
 // DOM Elements
@@ -25,8 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initApp() {
     cacheElements();
+    setupTheme();
     setupEventListeners();
     initAnimations();
+    initSmoothScroll();
+    initScrollAnimations();
 }
 
 function cacheElements() {
@@ -34,31 +38,68 @@ function cacheElements() {
     Elements.modalBody = document.getElementById('modalBody');
     Elements.contactForm = document.getElementById('contactForm');
     Elements.navLinks = document.querySelectorAll('.nav-links a');
+    Elements.themeToggle = document.getElementById('themeToggle');
 }
 
+// ==================== DARK MODE ====================
+function setupTheme() {
+    document.documentElement.setAttribute('data-theme', AppState.theme);
+    updateThemeIcon();
+    
+    if (Elements.themeToggle) {
+        Elements.themeToggle.addEventListener('click', toggleTheme);
+    }
+}
+
+function toggleTheme() {
+    AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('theme', AppState.theme);
+    document.documentElement.setAttribute('data-theme', AppState.theme);
+    updateThemeIcon();
+}
+
+function updateThemeIcon() {
+    if (Elements.themeToggle) {
+        Elements.themeToggle.innerHTML = AppState.theme === 'light' ? '🌙' : '☀️';
+    }
+}
+
+// ==================== EVENT LISTENERS ====================
 function setupEventListeners() {
-    // Smooth scrolling for navigation
+    // Navigation links
     Elements.navLinks.forEach(link => {
         link.addEventListener('click', handleNavClick);
     });
 
-    // Contact form submission
+    // Contact form
     if (Elements.contactForm) {
         Elements.contactForm.addEventListener('submit', handleContactSubmit);
     }
 
     // CTA buttons
-    document.querySelectorAll('.cta-button, .primary-btn').forEach(btn => {
+    document.querySelectorAll('.cta-button, .primary-btn, .btn-primary').forEach(btn => {
         btn.addEventListener('click', handleCTAClick);
     });
 
     // Pricing buttons
-    document.querySelectorAll('.pricing-btn').forEach(btn => {
+    document.querySelectorAll('.pricing-btn, .btn-outline').forEach(btn => {
         btn.addEventListener('click', handlePricingClick);
     });
 
-    // Intersection Observer for scroll animations
-    setupScrollAnimations();
+    // Mobile menu
+    setupMobileMenu();
+}
+
+function setupMobileMenu() {
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (menuBtn && navLinks) {
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menuBtn.classList.toggle('active');
+        });
+    }
 }
 
 function handleNavClick(e) {
@@ -74,51 +115,95 @@ function handleContactSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-    
-    // Show success message
-    showNotification('Message sent successfully! We\'ll get back to you soon.', 'success');
+    showNotification('Message sent successfully!', 'success');
     e.target.reset();
 }
 
 function handleCTAClick(e) {
-    // Scroll to tools section
-    document.getElementById('tools').scrollIntoView({ behavior: 'smooth' });
+    const toolsSection = document.getElementById('tools') || document.getElementById('tools-section');
+    if (toolsSection) {
+        toolsSection.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 function handlePricingClick(e) {
     const card = e.target.closest('.pricing-card');
-    const planName = card.querySelector('h3').textContent;
-    
-    showNotification(`You've selected the ${planName} plan!`, 'info');
+    if (card) {
+        const planName = card.querySelector('h3')?.textContent || 'Plan';
+        showNotification(`You've selected ${planName}!`, 'info');
+    }
 }
 
-function setupScrollAnimations() {
+// ==================== ANIMATIONS ====================
+function initAnimations() {
+    // Add hover effects with transform
+    document.querySelectorAll('.tool-card, .feature-card, .testimonial-card, .pricing-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+
+    // Button ripple effect
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', createRipple);
+    });
+}
+
+function createRipple(e) {
+    const btn = e.currentTarget;
+    const ripple = document.createElement('span');
+    ripple.classList.add('ripple');
+    
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = e.clientX - rect.left - size / 2 + 'px';
+    ripple.style.top = e.clientY - rect.top - size / 2 + 'px';
+    
+    btn.style.position = 'relative';
+    btn.style.overflow = 'hidden';
+    btn.appendChild(ripple);
+    
+    setTimeout(() => ripple.remove(), 600);
+}
+
+// ==================== SCROLL ANIMATIONS ====================
+function initScrollAnimations() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
             }
         });
-    }, { threshold: 0.1 });
+    }, { 
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
 
-    document.querySelectorAll('.tool-card, .feature, .testimonial, .pricing-card').forEach(el => {
+    document.querySelectorAll('.tool-card, .feature-card, .testimonial-card, .pricing-card, .section-header').forEach(el => {
         observer.observe(el);
     });
 }
 
-function initAnimations() {
-    // Add hover effects to cards
-    document.querySelectorAll('.tool-card').forEach(card => {
-        card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-8px)';
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = '';
+function initSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         });
     });
 }
 
-// Tool Modal Functions
+// ==================== TOOL MODAL ====================
 function openTool(toolName) {
     AppState.currentTool = toolName;
     let content = '';
@@ -143,14 +228,26 @@ function openTool(toolName) {
     Elements.modalBody.innerHTML = content;
     Elements.modal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    // Prevent body scroll on mobile
+    if (window.innerWidth < 768) {
+        document.body.style.position = 'fixed';
+    }
 
     // Initialize the specific tool
     initTool(toolName);
+    
+    // Focus first input
+    setTimeout(() => {
+        const firstInput = Elements.modalBody.querySelector('input, textarea, select');
+        if (firstInput) firstInput.focus();
+    }, 100);
 }
 
 function closeModal() {
     Elements.modal.classList.remove('active');
     document.body.style.overflow = '';
+    document.body.style.position = '';
     AppState.currentTool = null;
 }
 
@@ -164,7 +261,7 @@ Elements.modal.addEventListener('click', (e) => {
     if (e.target === Elements.modal) closeModal();
 });
 
-// Tool Render Functions
+// ==================== TOOL RENDER FUNCTIONS ====================
 function renderWritingAssistant() {
     return `
         <div class="tool-modal-header">
@@ -173,25 +270,26 @@ function renderWritingAssistant() {
                 <h2>AI Writing Assistant</h2>
                 <p>Create professional content in seconds</p>
             </div>
+            <button class="theme-toggle-small" onclick="toggleTheme()">${AppState.theme === 'light' ? '🌙' : '☀️'}</button>
         </div>
         
         <div class="tool-template-grid">
             <button class="template-btn active" data-template="email">📧 Email</button>
             <button class="template-btn" data-template="blog">📝 Blog</button>
             <button class="template-btn" data-template="resume">📄 Resume</button>
-            <button class="template-btn" data-template="social">📱 Social Media</button>
+            <button class="template-btn" data-template="social">📱 Social</button>
             <button class="template-btn" data-template="business">💼 Business</button>
             <button class="template-btn" data-template="creative">🎨 Creative</button>
         </div>
 
         <div class="tool-form">
             <div class="tool-input-group">
-                <label for="writingTopic">Topic or Subject</label>
+                <label for="writingTopic">📌 Topic or Subject</label>
                 <input type="text" id="writingTopic" placeholder="e.g., Introduction email for new client">
             </div>
             
             <div class="tool-input-group">
-                <label for="writingTone">Tone</label>
+                <label for="writingTone">🎨 Tone</label>
                 <select id="writingTone">
                     <option value="professional">Professional</option>
                     <option value="casual">Casual</option>
@@ -203,7 +301,7 @@ function renderWritingAssistant() {
             </div>
             
             <div class="tool-input-group">
-                <label for="writingDetails">Additional Details</label>
+                <label for="writingDetails">📝 Additional Details</label>
                 <textarea id="writingDetails" rows="3" placeholder="Any specific points or requirements..."></textarea>
             </div>
             
@@ -213,10 +311,10 @@ function renderWritingAssistant() {
             
             <div class="tool-actions">
                 <button class="generate-btn" onclick="generateWriting()">
-                    ✨ Generate Content
+                    <span class="btn-icon">✨</span> Generate
                 </button>
                 <button class="copy-btn" onclick="copyToClipboard('writingOutput')">
-                    📋 Copy
+                    <span class="btn-icon">📋</span> Copy
                 </button>
             </div>
         </div>
@@ -235,32 +333,38 @@ function renderTaskManager() {
         
         <div class="tool-form">
             <div class="tool-input-group">
-                <label for="newTask">Add New Task</label>
-                <div style="display: flex; gap: 0.5rem;">
+                <label for="newTask">📌 Add New Task</label>
+                <div class="task-input-row">
                     <input type="text" id="newTask" placeholder="What needs to be done?">
                     <select id="taskPriority">
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
+                        <option value="high">🔴 High</option>
+                        <option value="medium">🟡 Medium</option>
+                        <option value="low">🟢 Low</option>
                     </select>
                     <button class="generate-btn" onclick="addTask()">Add</button>
                 </div>
+            </div>
+            
+            <div class="task-stats">
+                <span class="stat-badge">Total: <strong id="totalTasks">0</strong></span>
+                <span class="stat-badge">Pending: <strong id="pendingTasks">0</strong></span>
+                <span class="stat-badge">Done: <strong id="completedTasks">0</strong></span>
             </div>
             
             <div class="task-list" id="taskList">
                 <!-- Tasks will be rendered here -->
             </div>
             
-            <div class="tool-output" id="aiSuggestions">
+            <div class="tool-output ai-suggestions" id="aiSuggestions">
                 🤖 AI Suggestions will appear here based on your tasks...
             </div>
             
             <div class="tool-actions">
                 <button class="generate-btn" onclick="getAITaskSuggestions()">
-                    💡 Get AI Suggestions
+                    <span class="btn-icon">💡</span> AI Suggestions
                 </button>
                 <button class="copy-btn" onclick="copyToClipboard('aiSuggestions')">
-                    📋 Copy
+                    <span class="btn-icon">📋</span> Copy
                 </button>
             </div>
         </div>
@@ -279,114 +383,10 @@ function renderBusinessToolkit() {
         
         <div class="tool-template-grid">
             <button class="template-btn active" data-template="invoice">📄 Invoice</button>
+            <button class="template-btn" data-template="quote">💰 Quote</button>
+            <button class="template-btn" data-template="proposal">📋 Proposal</button>
             <button class="template-btn" data-template="email">💬 Email</button>
             <button class="template-btn" data-template="marketing">📢 Marketing</button>
-            <button class="template-btn" data-template="proposal">📋 Proposal</button>
-        </div>
-
-        <div class="tool-form">
-            <div class="tool-input-group">
-                <label for="businessType">Business Document Type</label>
-                <select id="businessType">
-                    <option value="invoice">Invoice</option>
-                    <option value="quote">Quote</option>
-                    <option value="proposal">Business Proposal</option>
-                    <option value="email">Customer Email</option>
-                    <option value="marketing">Marketing Copy</option>
-                    <option value="description">Product Description</option>
-                </select>
-            </div>
-            
-            <div class="tool-input-group">
-                <label for="businessDetails">Details</label>
-                <textarea id="businessDetails" rows="4" placeholder="Provide details about what you need..."></textarea>
-            </div>
-            
-            <div class="tool-output" id="businessOutput">
-                Your business document will appear here...
-            </div>
-            
-            <div class="tool-actions">
-                <button class="generate-btn" onclick="generateBusinessDoc()">
-                    ✨ Generate Document
-                </button>
-                <button class="copy-btn" onclick="copyToClipboard('businessOutput')">
-                    📋 Copy
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-function renderStudentTool() {
-    return `
-        <div class="tool-modal-header">
-            <div class="tool-modal-icon">📚</div>
-            <div>
-                <h2>AI Student Tool</h2>
-                <p>Study smarter, not harder</p>
-            </div>
-        </div>
-        
-        <div class="tool-template-grid">
-            <button class="template-btn active" data-template="summary">📝 Summary</button>
-            <button class="template-btn" data-template="questions">❓ Questions</button>
-            <button class="template-btn" data-template="study">📅 Study Plan</button>
-            <button class="template-btn" data-template="essay">✍️ Essay Help</button>
-        </div>
-
-        <div class="tool-form">
-            <div class="tool-input-group">
-                <label for="studentToolType">What do you need?</label>
-                <select id="studentToolType">
-                    <option value="summary">Summarize Notes/Text</option>
-                    <option value="questions">Generate Exam Questions</option>
-                    <option value="plan">Create Study Plan</option>
-                    <option value="essay">Essay Assistance</option>
-                    <option value="flashcards">Create Flashcards</option>
-                </select>
-            </div>
-            
-            <div class="tool-input-group">
-                <label for="studentContent">Your Content</label>
-                <textarea id="studentContent" class="notes-input" placeholder="Paste your notes, text, or describe what you need..."></textarea>
-            </div>
-            
-            <div class="tool-output" id="studentOutput">
-                Your AI-generated study content will appear here...
-            </div>
-            
-            <div class="tool-actions">
-                <button class="generate-btn" onclick="generateStudentContent()">
-                    ✨ Generate
-                </button>
-                <button class="copy-btn" onclick="copyToClipboard('studentOutput')">
-                    📋 Copy
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-// Tool Initialization Functions
-function initTool(toolName) {
-    switch(toolName) {
-        case 'writing':
-            initWritingAssistant();
-            break;
-        case 'tasks':
-            initTaskManager();
-            break;
-        case 'business':
-            initBusinessToolkit();
-            break;
-        case 'student':
-            initStudentTool();
-            break;
-    }
-}
-
-function initWritingAssistant() {
     // Set up template buttons
     document.querySelectorAll('#modalBody .template-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -891,4 +891,88 @@ window.getAITaskSuggestions = getAITaskSuggestions;
 window.generateBusinessDoc = generateBusinessDoc;
 window.generateStudentContent = generateStudentContent;
 window.copyToClipboard = copyToClipboard;
+
+// ============================================
+// WHATSAPP FEATURE REQUEST INTEGRATION
+// ============================================
+
+// Configuration - Your WhatsApp number
+const WHATSAPP_NUMBER = '256761485613'; // Uganda number
+
+/**
+ * Opens WhatsApp with a pre-filled feature request message
+ * This function is called when customers click the "Send Feature Request" button
+ */
+function openFeatureRequest() {
+    // Pre-filled message template
+    const message = `Hi! I have a feature suggestion for your AI Productivity Tools:
+
+[Describe the feature you'd like us to add]
+
+This would help me because:
+[Explain how this feature would benefit you]
+
+Thanks!`;
+    
+    // Encode the message for URL
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Create the WhatsApp URL
+    const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+    
+    // Open WhatsApp in a new tab/window
+    window.open(whatsappURL, '_blank');
+    
+    // Show notification
+    showNotification('Opening WhatsApp...', 'info');
+}
+
+/**
+ * Alternative function with customizable message
+ * @param {string} customMessage - Optional custom message to pre-fill
+ */
+function sendFeatureRequest(customMessage = null) {
+    let message;
+    
+    if (customMessage) {
+        message = `Hi! I have a feature suggestion for your AI Productivity Tools:\n\n${customMessage}\n\nThanks!`;
+    } else {
+        message = `Hi! I have a feature suggestion for your AI Productivity Tools:
+
+[Describe the feature you'd like us to add]
+
+This would help me because:
+[Explain how this feature would benefit you]
+
+Thanks!`;
+    }
+    
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+    window.open(whatsappURL, '_blank');
+}
+
+/**
+ * Quick feature request with category
+ * @param {string} category - The tool/category the feature is for
+ */
+function requestFeatureForTool(category) {
+    const message = `Hi! I'd like to suggest a feature for the ${category} tool:
+
+[Describe the feature]
+
+This would help because:
+[Explain the benefit]
+
+Thanks!`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+    window.open(whatsappURL, '_blank');
+}
+
+// Export functions globally
+window.openFeatureRequest = openFeatureRequest;
+window.sendFeatureRequest = sendFeatureRequest;
+window.requestFeatureForTool = requestFeatureForTool;
 
