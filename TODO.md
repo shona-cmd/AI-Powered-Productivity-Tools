@@ -1,99 +1,202 @@
-# AI Productivity Tools Bundle - Development Plan
+# TODO.md - Task Tracking
 
-## Phase 1: Project Structure & Core Files ✅ COMPLETED
-- [x] Create main project directory structure
-- [x] Create README.md with complete documentation
+## ✅ Completed Tasks
 
-## Phase 2: Web Application (SaaS) ✅ COMPLETED
-- [x] Create index.html - Main landing page
-- [x] Create styles.css - Complete styling
-- [x] Create app.js - Main application logic
+### Vercel Configuration
+- [x] Fix vercel.json configuration (changed outputDirectory from "." to proper static serving)
+- [x] Add proper routes for API and static files
+- [x] Add CORS headers configuration
+- [x] Add cache headers for static assets
 
-## Phase 3: Prompt Packs (Ready-to-Sell) ✅ COMPLETED
-- [x] Create AI-Writing-Assistant-Prompts.md (50+ prompts)
-- [x] Create AI-Task-Manager-Prompts.md (40+ prompts)
-- [x] Create AI-Business-Toolkit-Prompts.md (50+ prompts)
-- [x] Create AI-Student-Productivity-Prompts.md (40+ prompts)
+### Payment System
+- [x] Create serverless API for payments (api/payment.js)
+- [x] Create secure payment modal (payment.js)
+- [x] Add payment verification flow
+- [x] Create payment-specific styles (payment.css)
+- [x] Update index.html to include payment.css
 
-## Phase 4: Sales & Marketing Materials ✅ COMPLETED
-- [x] Create product-page.html - Sales landing page
-- [x] Create sales-copy.md - Complete sales copy
+### Authentication System ✅ NEW
+- [x] Create serverless Auth API (api/auth.js)
+- [x] Create client-side auth module (auth.js)
+- [x] Add login/register/forgot password forms
+- [x] JWT token generation and verification
+- [x] Create auth styles (auth.css)
+- [x] Update index.html with auth UI and navigation
 
-## Phase 5: Documentation & Guides ✅ COMPLETED
-- [x] Create USER-GUIDE.md - Complete user guide
-- [x] Create bundle-description.md - Bundle product description
+### Transaction History ✅ NEW
+- [x] Create transactions API (api/transactions.js)
+- [x] Create client-side transactions module (transactions.js)
+- [x] Dashboard with statistics (total spent, tokens purchased, etc.)
+- [x] Transaction history list with icons and details
+- [x] CSV export functionality
 
-## Phase 6: Deployment Configuration ✅ COMPLETED
-- [x] Update vercel.json - Configure proper routing and output directory for web-app deployment
+### Documentation
+- [x] Create VERCEL_DEPLOYMENT.md with complete deployment guide
+- [x] Create .gitignore file
+
+### Package Configuration
+- [x] Update package.json with proper configuration
 
 ---
 
-## PROJECT STATUS: ✅ COMPLETE
+## 📋 Next Steps
 
-**Total Files Created:** 15 files
-**Total Prompts:** 180+ premium AI prompts
-**Ready for Sale:** Yes
+### Database Setup (Required for Full Functionality)
+The authentication and transaction APIs currently work with in-memory/demo mode. For production:
+
+1. **Create Supabase Project**
+   - Go to supabase.com and create free account
+   - Create new project
+   - Note your URL and API keys
+
+2. **Create Database Tables**
+
+```sql
+-- Users table
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    name TEXT NOT NULL,
+    phone TEXT,
+    tokens INTEGER DEFAULT 0,
+    email_verified BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Transactions table
+CREATE TABLE transactions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    tokens INTEGER NOT NULL,
+    amount DECIMAL(10,2),
+    description TEXT,
+    status TEXT DEFAULT 'completed',
+    mpesa_reference TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+
+-- Policies
+CREATE POLICY "Users can view own data" ON users
+    FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can manage own transactions" ON transactions
+    FOR ALL USING (auth.uid() = user_id);
+```
+
+3. **Set Environment Variables in Vercel**
+   - Go to Vercel Dashboard → Settings → Environment Variables
+   - Add:
+     - `SUPABASE_URL`: Your Supabase project URL
+     - `SUPABASE_SERVICE_KEY`: Your service role key
+     - `JWT_SECRET`: A long random string for signing tokens
+
+### Testing
+- [ ] Test user registration
+- [ ] Test user login
+- [ ] Test password reset flow
+- [ ] Test token purchase flow
+- [ ] Test transaction history
+- [ ] Test CSV export
+
+### Production Hardening
+- [ ] Set up email sending (SendGrid, Resend, or Supabase Auth)
+- [ ] Add rate limiting
+- [ ] Set up webhook for M-Pesa callbacks
+- [ ] Add error tracking (Sentry)
+- [ ] Configure SSL certificates (automatic with Vercel)
 
 ---
 
-## Project Structure
+## 📁 Project Structure (Updated)
 
 ```
-AI-Powered-Productivity-Tools/
-├── README.md                          # Main documentation
-├── TODO.md                           # This file
-├── web-app/                          # Web application
-│   ├── index.html                   # Landing page
-│   ├── styles.css                   # Complete styling
-│   └── app.js                       # Application logic
-├── prompt-packs/                    # Ready-to-sell prompt packs
-│   ├── AI-Writing-Assistant-Prompts.md
-│   ├── AI-Task-Manager-Prompts.md
-│   ├── AI-Business-Toolkit-Prompts.md
-│   └── AI-Student-Productivity-Prompts.md
-├── sales-materials/                  # Sales & marketing
-│   ├── sales-copy.md
-│   └── product-page.html
-├── documentation/                     # User guides
-│   └── USER-GUIDE.md
-└── bundle/                           # Bundle materials
-    └── bundle-description.md
+├── index.html              ✅ Main landing page (updated with auth UI)
+├── styles.css              ✅ Main styles
+├── payment.css             ✅ Payment modal styles
+├── auth.css               ✅ NEW: Authentication styles
+├── app.js                 ✅ Main application logic
+├── auth.js               ✅ NEW: Authentication client
+├── transactions.js        ✅ NEW: Transaction history client
+├── payment.js            ✅ Secure payment system
+├── vercel.json           ✅ FIXED: Vercel configuration
+├── package.json           ✅ UPDATED: Dependencies
+├── api/
+│   ├── payment.js        ✅ Payment API
+│   ├── auth.js           ✅ NEW: Authentication API
+│   └── transactions.js   ✅ NEW: Transactions API
+├── VERCEL_DEPLOYMENT.md  ✅ Complete deployment guide
+├── .gitignore            ✅ Git ignore file
+└── README.md
 ```
 
 ---
 
-## Products Included
+## 🚀 Deploy Updated App
 
-1. **AI Writing Assistant** - 50+ prompts ($15 value)
-2. **AI Task Manager** - 40+ prompts ($12 value)
-3. **AI Business Toolkit** - 50+ prompts ($15 value)
-4. **AI Student Tool** - 40+ prompts ($12 value)
+```bash
+# Commit changes
+git add .
+git commit -m "Add user authentication and transaction history"
+git push
 
-**Complete Bundle Price: $29**
-
----
-
-## Quick Start for Buyers
-
-1. Choose your tool category
-2. Select a prompt that matches your need
-3. Fill in the bracketed sections
-4. Paste into ChatGPT, Claude, or any AI tool
-5. Get professional results in seconds
+# Vercel will auto-deploy
+# Check: https://pt-jade.vercel.app
+```
 
 ---
 
-## Launch Checklist
+## 🔐 Authentication Features
 
-- [ ] Set up sales page (Payhip/Gumroad)
-- [ ] Upload prompt packs
-- [ ] Set up payment processing
-- [ ] Create email list
-- [ ] Plan launch promotion
-- [ ] Test all prompts
-- [ ] Prepare customer support
+### For Users:
+- ✅ Register with email, name, phone
+- ✅ Login with email/password
+- ✅ Persistent sessions (localStorage)
+- ✅ Profile management
+- ✅ Password reset flow
+
+### For Your Business:
+- ✅ User data stored securely (Supabase)
+- ✅ Protected API endpoints
+- ✅ Transaction tracking
+- ✅ Revenue analytics
 
 ---
 
-keywords: AI prompts, productivity, digital products, ChatGPT, business tools
+## 📊 Transaction History Features
+
+### Dashboard Shows:
+- 💰 Total Spent
+- 🪙 Tokens Purchased
+- 🎯 Tokens Used
+- 📊 Transaction Count
+- 📋 Full History
+- 📥 CSV Export
+
+---
+
+## ⚠️ Current Limitations (Without Database)
+
+The current implementation stores:
+- User sessions in localStorage
+- JWT tokens in localStorage
+- No persistent user database
+
+**Without Supabase/database:**
+- Users will lose access if they clear browser data
+- No password reset emails (will show demo link)
+- Transaction history won't persist across devices
+- Multiple users share the same data
+
+**To fix this, set up Supabase as described above.**
+
+---
+
+*Last updated: $(date)*
 
