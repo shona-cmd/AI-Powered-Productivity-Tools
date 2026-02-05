@@ -395,30 +395,90 @@ function renderBusinessToolkit() {
             <button class="template-btn" data-template="proposal">📋 Proposal</button>
             <button class="template-btn" data-template="email">💬 Email</button>
             <button class="template-btn" data-template="marketing">📢 Marketing</button>
-    // Set up template buttons
-    document.querySelectorAll('#modalBody .template-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            document.querySelectorAll('#modalBody .template-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
+            <button class="template-btn" data-template="contract">📝 Contract</button>
+        </div>
+
+        <div class="tool-form">
+            <div class="tool-input-group">
+                <label for="businessType">📋 Document Type</label>
+                <select id="businessType">
+                    <option value="invoice">Invoice</option>
+                    <option value="quote">Quote</option>
+                    <option value="proposal">Proposal</option>
+                    <option value="email">Business Email</option>
+                    <option value="marketing">Marketing Copy</option>
+                    <option value="contract">Contract</option>
+                </select>
+            </div>
             
-            // Update placeholder based on template
-            const template = e.target.dataset.template;
-            const topicInput = document.getElementById('writingTopic');
-            if (template === 'email') {
-                topicInput.placeholder = 'e.g., Follow-up email after interview';
-            } else if (template === 'blog') {
-                topicInput.placeholder = 'e.g., 5 Tips for Better Productivity';
-            } else if (template === 'resume') {
-                topicInput.placeholder = 'e.g., Software Developer resume for tech startup';
-            } else if (template === 'social') {
-                topicInput.placeholder = 'e.g., Instagram post about new product launch';
-            } else if (template === 'business') {
-                topicInput.placeholder = 'e.g., Mission statement for eco-friendly company';
-            } else if (template === 'creative') {
-                topicInput.placeholder = 'e.g., Short story about time travel';
-            }
-        });
-    });
+            <div class="tool-input-group">
+                <label for="businessDetails">📝 Details</label>
+                <textarea id="businessDetails" rows="4" placeholder="Provide the details for your document..."></textarea>
+            </div>
+            
+            <div class="tool-output" id="businessOutput">
+                Your AI-generated document will appear here...
+            </div>
+            
+            <div class="tool-actions">
+                <button class="generate-btn" onclick="generateBusinessDoc()">
+                    <span class="btn-icon">✨</span> Generate
+                </button>
+                <button class="copy-btn" onclick="copyToClipboard('businessOutput')">
+                    <span class="btn-icon">📋</span> Copy
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function renderStudentTool() {
+    return `
+        <div class="tool-modal-header">
+            <div class="tool-modal-icon">📚</div>
+            <div>
+                <h2>AI Student Tool</h2>
+                <p>Study smarter, not longer</p>
+            </div>
+        </div>
+        
+        <div class="tool-template-grid">
+            <button class="template-btn active" data-template="summary">📝 Summary</button>
+            <button class="template-btn" data-template="questions">❓ Questions</button>
+            <button class="template-btn" data-template="study">📅 Study Plan</button>
+            <button class="template-btn" data-template="essay">✍️ Essay Help</button>
+        </div>
+
+        <div class="tool-form">
+            <div class="tool-input-group">
+                <label for="studentToolType">🛠️ Tool</label>
+                <select id="studentToolType">
+                    <option value="summary">Summarize Content</option>
+                    <option value="questions">Generate Practice Questions</option>
+                    <option value="plan">Create Study Plan</option>
+                    <option value="essay">Essay Assistance</option>
+                </select>
+            </div>
+            
+            <div class="tool-input-group">
+                <label for="studentContent">📄 Your Content</label>
+                <textarea id="studentContent" rows="5" placeholder="Paste your notes, article, or study material here..."></textarea>
+            </div>
+            
+            <div class="tool-output" id="studentOutput">
+                AI-generated study help will appear here...
+            </div>
+            
+            <div class="tool-actions">
+                <button class="generate-btn" onclick="generateStudentContent()">
+                    <span class="btn-icon">✨</span> Generate
+                </button>
+                <button class="copy-btn" onclick="copyToClipboard('studentOutput')">
+                    <span class="btn-icon">📋</span> Copy
+                </button>
+            </div>
+        </div>
+    `;
 }
 
 function initTaskManager() {
