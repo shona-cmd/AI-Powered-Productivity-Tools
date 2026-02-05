@@ -1,3 +1,4 @@
+
 {
   "name": "ai-productivity-tools",
   "version": "1.0.0",
@@ -5,7 +6,7 @@
   "main": "index.html",
   "scripts": {
     "start": "npx serve .",
-    "build": "echo 'Static site build complete'",
+    "build": "echo 'Build complete'",
     "test": "echo 'Tests passed'"
   },
   "dependencies": {
@@ -14,14 +15,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": [
-    "ai",
-    "productivity",
-    "mobile-money",
-    "vercel",
-    "payments"
-  ],
+  "keywords": ["ai", "productivity", "mobile-money", "vercel", "payments"],
   "author": "AI Productivity Tools",
   "license": "MIT"
 }
-
