@@ -31,6 +31,13 @@ function initApp() {
     initAnimations();
     initSmoothScroll();
     initScrollAnimations();
+    
+    // Set welcome message
+    document.getElementById("app").innerHTML = `
+  <div style="text-align:center">
+    Welcome
+  </div>
+`;
 }
 
 function cacheElements() {
@@ -39,6 +46,7 @@ function cacheElements() {
     Elements.contactForm = document.getElementById('contactForm');
     Elements.navLinks = document.querySelectorAll('.nav-links a');
     Elements.themeToggle = document.getElementById('themeToggle');
+    Elements.app = document.getElementById('app');
 }
 
 // ==================== DARK MODE ====================
