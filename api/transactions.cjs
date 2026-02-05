@@ -3,10 +3,14 @@
  * 
  * Handles transaction history, reports, and analytics
  * 
- * Version 2.0 - Fixed for FUNCTION_INVOCATION_FAILED error
+ * Version 3.0 - Fixed: FUNCTION_INVOCATION_FAILED
+ * Changed to CommonJS exports for consistent serverless behavior
+ * 
+ * @vercel { runtime: "nodejs18.x" }
  */
 
-import crypto from 'crypto';
+// Using CommonJS for consistent Vercel serverless behavior
+const crypto = require('crypto');
 
 // Get JWT secret from environment, with safe fallback
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-do-not-use-in-production';
@@ -117,7 +121,7 @@ function parseUrl(url) {
 
 /**
  * Main handler
- * Fixed: Comprehensive try-catch wrapper
+ * Fixed: Comprehensive try-catch wrapper and CommonJS export
  */
 async function handler(req, res) {
   try {
@@ -267,6 +271,6 @@ async function handleExportTransactions(res, headers) {
   }
 }
 
-// Export for Vercel Serverless (ESM)
-export default handler;
+// Export for Vercel Serverless (CommonJS)
+module.exports = handler;
 

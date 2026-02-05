@@ -9,11 +9,18 @@
  * - Store transactions in a database (PostgreSQL, MongoDB, etc.)
  * - Implement proper webhook verification
  * 
- * Version 2.0 - Fixed for FUNCTION_INVOCATION_FAILED error
+ * Version 3.0 - Fixed: FUNCTION_INVOCATION_FAILED
+ * Changed to CommonJS exports for consistent serverless behavior
+ * Removed setInterval to prevent runtime crashes
+ * 
+ * @vercel { runtime: "nodejs18.x" }
  */
 
+// Using CommonJS for consistent Vercel serverless behavior
+const crypto = require('crypto');
+
 // In-memory transaction storage (use database in production)
-// Fixed: Use Map with safe cleanup
+// Fixed: Use Map with on-demand cleanup (no setInterval)
 const transactions = new Map();
 const pendingPayments = new Map();
 
@@ -31,33 +38,42 @@ const PAYMENT_CONFIG = {
 };
 
 /**
- * Cleanup expired payments periodically
- * Fixed: Prevent memory leaks in serverless environment
+ * Cleanup expired payments on-demand
+ * Fixed: No setInterval - use on-demand cleanup instead
+ * This function only runs when needed, not continuously
  */
 function cleanupExpiredPayments() {
     try {
         const now = new Date();
+        const expiredIds = [];
+        
         for (const [id, payment] of pendingPayments) {
             if (new Date(payment.expiresAt) < now) {
-                pendingPayments.delete(id);
+                expiredIds.push(id);
             }
         }
-        // Limit total storage
-        if (pendingPayments.size > 1000) {
-            // Remove oldest entries
+        
+        // Remove expired payments
+        expiredIds.forEach(id => pendingPayments.delete(id));
+        
+        // Limit total storage to prevent memory leaks
+        if (pendingPayments.size > 100) {
             const oldest = Array.from(pendingPayments.entries())
                 .sort((a, b) => new Date(a[1].createdAt) - new Date(b[1].createdAt))
-                .slice(0, 100);
+                .slice(0, pendingPayments.size - 100);
             oldest.forEach(([id]) => pendingPayments.delete(id));
+        }
+        
+        // Also cleanup old completed transactions
+        if (transactions.size > 50) {
+            const oldest = Array.from(transactions.entries())
+                .sort((a, b) => new Date(a[1].createdAt) - new Date(b[1].createdAt))
+                .slice(0, transactions.size - 50);
+            oldest.forEach(([id]) => transactions.delete(id));
         }
     } catch (e) {
         console.warn('Cleanup failed:', e.message);
     }
-}
-
-// Run cleanup occasionally
-if (typeof setInterval !== 'undefined') {
-    setInterval(cleanupExpiredPayments, 5 * 60 * 1000); // Every 5 minutes
 }
 
 /**
@@ -137,7 +153,7 @@ function parseBody(body) {
 /**
  * Main handler for all API requests
  * Compatible with Vercel Serverless Functions
- * Fixed: Comprehensive error handling
+ * Fixed: Comprehensive error handling and CommonJS export
  */
 async function handler(req, res) {
     try {
@@ -190,7 +206,7 @@ async function handler(req, res) {
             console.error('Failed to send error response:', e);
         }
     }
-};
+}
 
 /**
  * Create a new payment request
@@ -374,10 +390,14 @@ async function simulatePaymentVerification(reference, amount) {
 /**
  * Get transaction history
  * GET /api/transactions?phone=...
+ * Fixed: Added on-demand cleanup
  */
 async function handleGetTransactions(res, query) {
     try {
         const { phone } = query;
+        
+        // Run on-demand cleanup
+        cleanupExpiredPayments();
         
         const userTransactions = Array.from(transactions.values())
             .filter(t => t.phoneNumber === phone || !phone)
@@ -393,6 +413,6 @@ async function handleGetTransactions(res, query) {
     }
 }
 
-// Export for Vercel Serverless (ESM)
-export default handler;
+// Export for Vercel Serverless (CommonJS)
+module.exports = handler;
 

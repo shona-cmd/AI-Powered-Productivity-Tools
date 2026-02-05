@@ -4,10 +4,14 @@
  * Handles user registration, login, and session management
  * Uses Supabase for database (free tier available)
  * 
- * Version 2.0 - Fixed for FUNCTION_INVOCATION_FAILED error
+ * Version 3.0 - Fixed: FUNCTION_INVOCATION_FAILED
+ * Changed to CommonJS exports for consistent serverless behavior
+ * 
+ * @vercel { runtime: "nodejs18.x" }
  */
 
-import crypto from 'crypto';
+// Using CommonJS for consistent Vercel serverless behavior
+const crypto = require('crypto');
 
 // Get JWT secret from environment, with safe fallback
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-do-not-use-in-production';
@@ -150,8 +154,29 @@ function parseUrl(url) {
 }
 
 /**
+ * Parse body with safe defaults
+ */
+function parseBody(body) {
+  if (!body) return {};
+  
+  if (typeof body === 'string') {
+    try {
+      return JSON.parse(body) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+  
+  if (typeof body === 'object') {
+    return body;
+  }
+  
+  return {};
+}
+
+/**
  * Main handler
- * Fixed: Comprehensive try-catch wrapper
+ * Fixed: Comprehensive try-catch wrapper and CommonJS export
  */
 async function handler(req, res) {
   try {
@@ -173,16 +198,7 @@ async function handler(req, res) {
     // Parse body with safe defaults
     let body = {};
     if (method === 'POST' || method === 'PATCH') {
-      try {
-        const bodyStr = req.body;
-        if (typeof bodyStr === 'string') {
-          body = JSON.parse(bodyStr) || {};
-        } else if (bodyStr && typeof bodyStr === 'object') {
-          body = bodyStr;
-        }
-      } catch (e) {
-        body = {};
-      }
+      body = parseBody(req.body);
     }
 
     // Route requests with error handling per route
@@ -326,6 +342,6 @@ async function handleMe(res, headers) {
   }
 }
 
-// Export for Vercel Serverless (ESM)
-export default handler;
+// Export for Vercel Serverless (CommonJS)
+module.exports = handler;
 

@@ -3,8 +3,57 @@
  * 
  * Properly exports handler for Vercel Serverless Functions
  * with comprehensive error handling
+ * 
+ * @vercel { runtime: "nodejs18.x" }
  */
 
+// Using CommonJS for consistent Vercel serverless behavior
+const crypto = require('crypto');
+
+/**
+ * Parse URL safely for Vercel serverless
+ */
+function parseUrl(url) {
+  const result = {
+    path: '/',
+    query: {}
+  };
+  
+  if (!url) {
+    return result;
+  }
+  
+  try {
+    const urlObj = new URL(url);
+    result.path = urlObj.pathname;
+    const queryString = urlObj.search.substring(1);
+    if (queryString) {
+      const params = new URLSearchParams(queryString);
+      for (const [key, value] of params) {
+        result.query[key] = value;
+      }
+    }
+  } catch (e) {
+    try {
+      const parts = url.split('?');
+      result.path = parts[0] || '/';
+      if (parts[1]) {
+        const params = new URLSearchParams(parts[1]);
+        for (const [key, value] of params) {
+          result.query[key] = value;
+        }
+      }
+    } catch (e2) {
+      console.warn('URL parsing failed:', e2.message);
+    }
+  }
+  
+  return result;
+}
+
+/**
+ * Main handler - Fixed: Using module.exports instead of export default
+ */
 async function handler(req, res) {
   try {
     // Set CORS headers
@@ -30,7 +79,6 @@ async function handler(req, res) {
       uptime = process.uptime?.() || 0;
       nodeVersion = process.version || 'unknown';
     } catch (e) {
-      // Process properties might not be available in some contexts
       console.warn('Health check metrics unavailable:', e.message);
     }
 
@@ -50,12 +98,11 @@ async function handler(req, res) {
         status: 'degraded'
       });
     } catch (e) {
-      // If even error response fails, log and exit
       console.error('Failed to send error response:', e);
     }
   }
 }
 
-// Export for Vercel Serverless (ESM)
-export default handler;
+// Export for Vercel Serverless (CommonJS)
+module.exports = handler;
 
