@@ -1,0 +1,18 @@
+# Vercel Serverless Functions Configuration
+# Files to ignore during deployment
+
+# Ignore client-side static assets (already served by index.html)
+web-app/
+*.html
+
+# Ignore documentation and non-deployable content
+documentation/
+prompt-packs/
+sales-materials/
+bundle/
+.DS_Store
+*.log
+
+# Keep API folder for serverless functions (do not ignore)
+!api/
+
