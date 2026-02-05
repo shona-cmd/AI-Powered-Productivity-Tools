@@ -3,7 +3,7 @@
   "framework": null,
   "functions": {
     "api/**/*.cjs": {
-      "runtime": "nodejs18.x@18"
+      "runtime": "nodejs18.x"
     }
   },
   "headers": [
