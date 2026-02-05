@@ -4,7 +4,7 @@
  * Handles transaction history, reports, and analytics
  */
 
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
 
@@ -34,7 +34,7 @@ function verifyToken(token) {
  * Main handler
  * Compatible with Vercel Serverless Functions
  */
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
