@@ -5,10 +5,7 @@
   "outputDirectory": ".",
   "functions": {
     "api/*.js": {
-      "runtime": "nodejs18.x"
-    },
-    "api/*.cjs": {
-      "runtime": "nodejs18.x"
+      "maxDuration": 10
     }
   },
   "headers": [
