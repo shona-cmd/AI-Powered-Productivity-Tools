@@ -1,11 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "functions": {
-    "api/**/*.cjs": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "headers": [
     {
       "source": "/api/(.*)",
