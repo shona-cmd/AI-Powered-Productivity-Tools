@@ -8,9 +8,12 @@
  * - Use a real payment gateway API (M-Pesa, Airtel Money, etc.)
  * - Store transactions in a database (PostgreSQL, MongoDB, etc.)
  * - Implement proper webhook verification
+ * 
+ * Version 2.0 - Fixed for FUNCTION_INVOCATION_FAILED error
  */
 
 // In-memory transaction storage (use database in production)
+// Fixed: Use Map with safe cleanup
 const transactions = new Map();
 const pendingPayments = new Map();
 
@@ -28,58 +31,164 @@ const PAYMENT_CONFIG = {
 };
 
 /**
- * Main handler for all API requests
- * Compatible with Vercel Serverless Functions
+ * Cleanup expired payments periodically
+ * Fixed: Prevent memory leaks in serverless environment
  */
-export default async function handler(req, res) {
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-    // Handle CORS preflight
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+function cleanupExpiredPayments() {
+    try {
+        const now = new Date();
+        for (const [id, payment] of pendingPayments) {
+            if (new Date(payment.expiresAt) < now) {
+                pendingPayments.delete(id);
+            }
+        }
+        // Limit total storage
+        if (pendingPayments.size > 1000) {
+            // Remove oldest entries
+            const oldest = Array.from(pendingPayments.entries())
+                .sort((a, b) => new Date(a[1].createdAt) - new Date(b[1].createdAt))
+                .slice(0, 100);
+            oldest.forEach(([id]) => pendingPayments.delete(id));
+        }
+    } catch (e) {
+        console.warn('Cleanup failed:', e.message);
     }
+}
 
-    const method = req.method || 'GET';
-    const url = req.url || '';
-    const [path, queryString] = url.split('?');
-    const query = Object.fromEntries(new URLSearchParams(queryString || ''));
+// Run cleanup occasionally
+if (typeof setInterval !== 'undefined') {
+    setInterval(cleanupExpiredPayments, 5 * 60 * 1000); // Every 5 minutes
+}
 
-    // Parse body
-    let body = {};
-    if (method === 'POST') {
+/**
+ * Extract path and query from request URL
+ * Fixed: Handles different URL formats from Vercel Serverless
+ */
+function parseUrl(url) {
+    const result = {
+        path: '/',
+        query: {}
+    };
+    
+    // Handle undefined or null URL
+    if (!url) {
+        return result;
+    }
+    
+    try {
+        // Handle full URLs (e.g., https://domain.com/api/path?query=1)
+        let path = url;
+        let queryString = '';
+        
+        const urlObj = new URL(url);
+        path = urlObj.pathname;
+        queryString = urlObj.search.substring(1);
+        
+        // Parse query string
+        if (queryString) {
+            const params = new URLSearchParams(queryString);
+            for (const [key, value] of params) {
+                result.query[key] = value;
+            }
+        }
+        
+        result.path = path;
+    } catch (e) {
+        // Fallback to simple split
         try {
-            body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-        } catch (e) {
-            body = {};
+            const parts = url.split('?');
+            result.path = parts[0] || '/';
+            if (parts[1]) {
+                const params = new URLSearchParams(parts[1]);
+                for (const [key, value] of params) {
+                    result.query[key] = value;
+                }
+            }
+        } catch (e2) {
+            console.warn('URL parsing failed, using default:', e2.message);
         }
     }
+    
+    return result;
+}
 
+/**
+ * Safe JSON body parsing
+ * Fixed: Prevent crashes from malformed JSON
+ */
+function parseBody(body) {
+    if (!body) return {};
+    
+    if (typeof body === 'string') {
+        try {
+            return JSON.parse(body) || {};
+        } catch (e) {
+            return {};
+        }
+    }
+    
+    if (typeof body === 'object') {
+        return body;
+    }
+    
+    return {};
+}
+
+/**
+ * Main handler for all API requests
+ * Compatible with Vercel Serverless Functions
+ * Fixed: Comprehensive error handling
+ */
+async function handler(req, res) {
     try {
-        // Route requests
-        if (path === '/api/payment/create' && method === 'POST') {
-            return handleCreatePayment(res, body);
-        } else if (path === '/api/payment/verify' && method === 'POST') {
-            return handleVerifyPayment(res, body);
-        } else if (path === '/api/payment/status' && method === 'GET') {
-            return handleGetPaymentStatus(res, query);
-        } else if (path === '/api/packages' && method === 'GET') {
-            return handleGetPackages(res);
-        } else if (path === '/api/transactions' && method === 'GET') {
-            return handleGetTransactions(res, query);
-        } else if (path === '/api/health' && method === 'GET') {
-            return res.status(200).json({
-                status: 'ok',
-                timestamp: new Date().toISOString()
-            });
-        } else {
-            return res.status(404).json({ error: 'Endpoint not found', path, method });
+        // Set CORS headers
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+        // Handle CORS preflight
+        if (req.method === 'OPTIONS') {
+            return res.status(200).end();
+        }
+
+        // Safely get method and URL
+        const method = req.method || 'GET';
+        const url = req.url || '';
+        const { path, query } = parseUrl(url);
+
+        // Parse body safely
+        let body = {};
+        if (method === 'POST') {
+            body = parseBody(req.body);
+        }
+
+        // Route requests with error handling
+        try {
+            if (path === '/api/payment/create' && method === 'POST') {
+                return handleCreatePayment(res, body);
+            } else if (path === '/api/payment/verify' && method === 'POST') {
+                return handleVerifyPayment(res, body);
+            } else if (path === '/api/payment/status' && method === 'GET') {
+                return handleGetPaymentStatus(res, query);
+            } else if (path === '/api/packages' && method === 'GET') {
+                return handleGetPackages(res);
+            } else if (path === '/api/transactions' && method === 'GET') {
+                return handleGetTransactions(res, query);
+            } else {
+                return res.status(404).json({ error: 'Endpoint not found', path, method });
+            }
+        } catch (routeError) {
+            console.error('Route handler error:', routeError);
+            return res.status(500).json({ error: 'Internal server error in route handler' });
         }
     } catch (error) {
         console.error('API Error:', error);
-        return res.status(500).json({ error: 'Internal server error' });
+        // Never leave handler without sending a response
+        try {
+            return res.status(500).json({ error: 'Internal server error' });
+        } catch (e) {
+            console.error('Failed to send error response:', e);
+        }
     }
 };
 
@@ -88,48 +197,53 @@ export default async function handler(req, res) {
  * POST /api/payment/create
  */
 async function handleCreatePayment(res, body) {
-    const { packageId, phoneNumber, method = 'mobile_money' } = body;
-    
-    if (!PAYMENT_CONFIG.packages[packageId]) {
-        return res.status(400).json({ error: 'Invalid package selected' });
-    }
-    
-    const pkg = PAYMENT_CONFIG.packages[packageId];
-    const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
-    const payment = {
-        id: transactionId,
-        packageId,
-        tokens: pkg.tokens,
-        amount: pkg.price,
-        currency: PAYMENT_CONFIG.currency,
-        phoneNumber: phoneNumber || PAYMENT_CONFIG.phoneNumber,
-        method,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString()
-    };
-    
-    pendingPayments.set(transactionId, payment);
-    
-    return res.status(200).json({
-        success: true,
-        transactionId,
-        instructions: {
-            step1: `Send UGX ${pkg.price.toLocaleString()} to ${PAYMENT_CONFIG.phoneNumber} (${PAYMENT_CONFIG.network})`,
-            step2: 'Use your mobile money PIN to confirm',
-            step3: 'Enter the transaction reference below for verification',
-            step4: 'Your tokens will be credited after confirmation'
-        },
-        paymentDetails: {
-            recipient: PAYMENT_CONFIG.phoneNumber,
-            network: PAYMENT_CONFIG.network,
+    try {
+        const { packageId, phoneNumber, method = 'mobile_money' } = body;
+        
+        if (!PAYMENT_CONFIG.packages[packageId]) {
+            return res.status(400).json({ error: 'Invalid package selected' });
+        }
+        
+        const pkg = PAYMENT_CONFIG.packages[packageId];
+        const transactionId = `TXN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        
+        const payment = {
+            id: transactionId,
+            packageId,
+            tokens: pkg.tokens,
             amount: pkg.price,
             currency: PAYMENT_CONFIG.currency,
-            reference: transactionId
-        },
-        expiresIn: '30 minutes'
-    });
+            phoneNumber: phoneNumber || PAYMENT_CONFIG.phoneNumber,
+            method,
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString()
+        };
+        
+        pendingPayments.set(transactionId, payment);
+        
+        return res.status(200).json({
+            success: true,
+            transactionId,
+            instructions: {
+                step1: `Send UGX ${pkg.price.toLocaleString()} to ${PAYMENT_CONFIG.phoneNumber} (${PAYMENT_CONFIG.network})`,
+                step2: 'Use your mobile money PIN to confirm',
+                step3: 'Enter the transaction reference below for verification',
+                step4: 'Your tokens will be credited after confirmation'
+            },
+            paymentDetails: {
+                recipient: PAYMENT_CONFIG.phoneNumber,
+                network: PAYMENT_CONFIG.network,
+                amount: pkg.price,
+                currency: PAYMENT_CONFIG.currency,
+                reference: transactionId
+            },
+            expiresIn: '30 minutes'
+        });
+    } catch (error) {
+        console.error('Create payment error:', error);
+        return res.status(500).json({ error: 'Failed to create payment' });
+    }
 }
 
 /**
@@ -137,43 +251,52 @@ async function handleCreatePayment(res, body) {
  * POST /api/payment/verify
  */
 async function handleVerifyPayment(res, body) {
-    const { transactionId, mpesaReference, phoneNumber } = body;
-    
-    const payment = pendingPayments.get(transactionId);
-    
-    if (!payment) {
-        return res.status(404).json({ error: 'Transaction not found' });
-    }
-    
-    if (new Date(payment.expiresAt) < new Date()) {
-        pendingPayments.delete(transactionId);
-        return res.status(400).json({ error: 'Payment session expired. Please start again.' });
-    }
-    
-    const isVerified = await simulatePaymentVerification(mpesaReference, payment.amount);
-    
-    if (isVerified) {
-        payment.status = 'completed';
-        payment.verifiedAt = new Date().toISOString();
-        payment.mpesaReference = mpesaReference;
+    try {
+        const { transactionId, mpesaReference, phoneNumber } = body;
         
-        transactions.set(transactionId, payment);
-        pendingPayments.delete(transactionId);
+        if (!transactionId) {
+            return res.status(400).json({ error: 'Transaction ID is required' });
+        }
         
-        return res.status(200).json({
-            success: true,
-            transactionId,
-            status: 'completed',
-            tokens: payment.tokens,
-            message: `Successfully credited ${payment.tokens} tokens to your account`
-        });
-    } else {
-        return res.status(400).json({
-            success: false,
-            status: 'pending',
-            message: 'Payment not yet received. Please complete the payment and try again.',
-            hint: 'If you have sent the payment, wait 1-2 minutes and try verification again.'
-        });
+        const payment = pendingPayments.get(transactionId);
+        
+        if (!payment) {
+            return res.status(404).json({ error: 'Transaction not found' });
+        }
+        
+        if (new Date(payment.expiresAt) < new Date()) {
+            pendingPayments.delete(transactionId);
+            return res.status(400).json({ error: 'Payment session expired. Please start again.' });
+        }
+        
+        const isVerified = await simulatePaymentVerification(mpesaReference, payment.amount);
+        
+        if (isVerified) {
+            payment.status = 'completed';
+            payment.verifiedAt = new Date().toISOString();
+            payment.mpesaReference = mpesaReference;
+            
+            transactions.set(transactionId, payment);
+            pendingPayments.delete(transactionId);
+            
+            return res.status(200).json({
+                success: true,
+                transactionId,
+                status: 'completed',
+                tokens: payment.tokens,
+                message: `Successfully credited ${payment.tokens} tokens to your account`
+            });
+        } else {
+            return res.status(200).json({
+                success: false,
+                status: 'pending',
+                message: 'Payment not yet received. Please complete the payment and try again.',
+                hint: 'If you have sent the payment, wait 1-2 minutes and try verification again.'
+            });
+        }
+    } catch (error) {
+        console.error('Verify payment error:', error);
+        return res.status(500).json({ error: 'Failed to verify payment' });
     }
 }
 
@@ -182,21 +305,30 @@ async function handleVerifyPayment(res, body) {
  * GET /api/payment/status?id=...
  */
 async function handleGetPaymentStatus(res, query) {
-    const { id } = query;
-    
-    const payment = transactions.get(id) || pendingPayments.get(id);
-    
-    if (!payment) {
-        return res.status(404).json({ error: 'Transaction not found' });
+    try {
+        const { id } = query;
+        
+        if (!id) {
+            return res.status(400).json({ error: 'Transaction ID is required' });
+        }
+        
+        const payment = transactions.get(id) || pendingPayments.get(id);
+        
+        if (!payment) {
+            return res.status(404).json({ error: 'Transaction not found' });
+        }
+        
+        return res.status(200).json({
+            transactionId: payment.id,
+            status: payment.status,
+            amount: payment.amount,
+            tokens: payment.tokens,
+            createdAt: payment.createdAt
+        });
+    } catch (error) {
+        console.error('Get payment status error:', error);
+        return res.status(500).json({ error: 'Failed to get payment status' });
     }
-    
-    return res.status(200).json({
-        transactionId: payment.id,
-        status: payment.status,
-        amount: payment.amount,
-        tokens: payment.tokens,
-        createdAt: payment.createdAt
-    });
 }
 
 /**
@@ -204,15 +336,20 @@ async function handleGetPaymentStatus(res, query) {
  * GET /api/packages
  */
 async function handleGetPackages(res) {
-    return res.status(200).json({
-        packages: Object.entries(PAYMENT_CONFIG.packages).map(([id, pkg]) => ({
-            id,
-            ...pkg,
-            formattedPrice: `${PAYMENT_CONFIG.currency} ${pkg.price.toLocaleString()}`
-        })),
-        phoneNumber: PAYMENT_CONFIG.phoneNumber,
-        network: PAYMENT_CONFIG.network
-    });
+    try {
+        return res.status(200).json({
+            packages: Object.entries(PAYMENT_CONFIG.packages).map(([id, pkg]) => ({
+                id,
+                ...pkg,
+                formattedPrice: `${PAYMENT_CONFIG.currency} ${pkg.price.toLocaleString()}`
+            })),
+            phoneNumber: PAYMENT_CONFIG.phoneNumber,
+            network: PAYMENT_CONFIG.network
+        });
+    } catch (error) {
+        console.error('Get packages error:', error);
+        return res.status(500).json({ error: 'Failed to get packages' });
+    }
 }
 
 /**
@@ -220,13 +357,18 @@ async function handleGetPackages(res) {
  * In production, replace with actual API call to payment gateway
  */
 async function simulatePaymentVerification(reference, amount) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (reference && reference.toUpperCase().includes('SUCCESS')) {
-        return true;
+    try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (reference && reference.toUpperCase().includes('SUCCESS')) {
+            return true;
+        }
+        
+        return Math.random() > 0.3;
+    } catch (error) {
+        console.error('Payment simulation error:', error);
+        return false;
     }
-    
-    return Math.random() > 0.3;
 }
 
 /**
@@ -234,15 +376,23 @@ async function simulatePaymentVerification(reference, amount) {
  * GET /api/transactions?phone=...
  */
 async function handleGetTransactions(res, query) {
-    const { phone } = query;
-    
-    const userTransactions = Array.from(transactions.values())
-        .filter(t => t.phoneNumber === phone || !phone)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    
-    return res.status(200).json({
-        transactions: userTransactions,
-        total: userTransactions.length
-    });
+    try {
+        const { phone } = query;
+        
+        const userTransactions = Array.from(transactions.values())
+            .filter(t => t.phoneNumber === phone || !phone)
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        return res.status(200).json({
+            transactions: userTransactions,
+            total: userTransactions.length
+        });
+    } catch (error) {
+        console.error('Get transactions error:', error);
+        return res.status(500).json({ error: 'Failed to get transactions' });
+    }
 }
+
+// Export for Vercel Serverless (ESM)
+export default handler;
 
