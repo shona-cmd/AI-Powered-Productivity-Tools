@@ -33,11 +33,15 @@ function initApp() {
     initScrollAnimations();
     
     // Set welcome message
-    document.getElementById("app").innerHTML = `
-  <div style="text-align:center">
-    Welcome
-  </div>
-`;
+    document.addEventListener("DOMContentLoaded", () => {
+        const app = document.getElementById("app");
+        app.innerHTML = `
+            <div style="text-align:center; padding:40px;">
+                <h1>Welcome to AI-Powered Productivity Tools 🚀</h1>
+                <p>Boost your workflow with smart automation, payments, and insights.</p>
+            </div>
+        `;
+    });
 }
 
 function cacheElements() {
