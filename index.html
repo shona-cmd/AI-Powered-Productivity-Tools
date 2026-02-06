@@ -500,6 +500,11 @@
       import { SpeedInsights } from "https://esm.run/@vercel/speed-insights";
       SpeedInsights.init();
     </script>
+    <!-- Vercel Web Analytics -->
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
 
