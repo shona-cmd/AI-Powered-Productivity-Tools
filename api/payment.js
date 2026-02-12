@@ -9,10 +9,11 @@
  * - Store transactions in a database (PostgreSQL, MongoDB, etc.)
  * - Implement proper webhook verification
  *
- * Version 3.0 - Fixed: FUNCTION_INVOCATION_FAILED
- * Changed to CommonJS exports for consistent serverless behavior
- * Removed setInterval to prevent runtime crashes
+ * Version 3.1 - Fixed: FUNCTION_INVOCATION_FAILED
+ * Added missing readBody function for proper request parsing
  */
+
+/** @vercel { runtime: "nodejs18.x" } */
 
 // Using CommonJS for consistent Vercel serverless behavior
 const crypto = require('crypto');
@@ -34,6 +35,29 @@ const PAYMENT_CONFIG = {
         '500_tokens': { tokens: 500, price: 300000 }
     }
 };
+
+/**
+ * Read request body safely - synchronous version for Vercel
+ * Vercel automatically parses JSON, so we just need to handle the result
+ */
+function getBody(req) {
+    // Vercel automatically parses JSON bodies into req.body
+    if (req.body && typeof req.body === 'object') {
+        return req.body;
+    }
+    
+    // If body is a string, parse it
+    if (req.body && typeof req.body === 'string') {
+        try {
+            return JSON.parse(req.body) || {};
+        } catch (e) {
+            return {};
+        }
+    }
+    
+    // Default empty object
+    return {};
+}
 
 /**
  * Cleanup expired payments on-demand
@@ -76,53 +100,32 @@ function cleanupExpiredPayments() {
 
 /**
  * Extract path and query from request URL
- * Fixed: Handles different URL formats from Vercel Serverless
+ * Fixed: Simplified parsing to avoid URL constructor issues
  */
 function parseUrl(url) {
     const result = {
         path: '/',
         query: {}
     };
-    
+
     // Handle undefined or null URL
     if (!url) {
         return result;
     }
-    
+
     try {
-        // Handle full URLs (e.g., https://domain.com/api/path?query=1)
-        let path = url;
-        let queryString = '';
-        
-        const urlObj = new URL(url);
-        path = urlObj.pathname;
-        queryString = urlObj.search.substring(1);
-        
-        // Parse query string
-        if (queryString) {
-            const params = new URLSearchParams(queryString);
+        const parts = url.split('?');
+        result.path = parts[0] || '/';
+        if (parts[1]) {
+            const params = new URLSearchParams(parts[1]);
             for (const [key, value] of params) {
                 result.query[key] = value;
             }
         }
-        
-        result.path = path;
     } catch (e) {
-        // Fallback to simple split
-        try {
-            const parts = url.split('?');
-            result.path = parts[0] || '/';
-            if (parts[1]) {
-                const params = new URLSearchParams(parts[1]);
-                for (const [key, value] of params) {
-                    result.query[key] = value;
-                }
-            }
-        } catch (e2) {
-            console.warn('URL parsing failed, using default:', e2.message);
-        }
+        console.warn('URL parsing failed, using default:', e.message);
     }
-    
+
     return result;
 }
 
@@ -132,7 +135,7 @@ function parseUrl(url) {
  */
 function parseBody(body) {
     if (!body) return {};
-    
+
     if (typeof body === 'string') {
         try {
             return JSON.parse(body) || {};
@@ -140,11 +143,11 @@ function parseBody(body) {
             return {};
         }
     }
-    
+
     if (typeof body === 'object') {
         return body;
     }
-    
+
     return {};
 }
 
@@ -170,10 +173,10 @@ async function handler(req, res) {
         const url = req.url || '';
         const { path, query } = parseUrl(url);
 
-        // Parse body safely
+        // Parse body safely - use synchronous getBody since Vercel auto-parses
         let body = {};
         if (method === 'POST') {
-            body = parseBody(req.body);
+            body = getBody(req);
         }
 
         // Route requests with error handling
