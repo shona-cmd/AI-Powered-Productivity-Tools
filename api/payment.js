@@ -14,6 +14,8 @@
  */
 
 
+require('dotenv').config();
+
 const crypto = require('crypto');
 
 // In-memory transaction storage (use database in production)

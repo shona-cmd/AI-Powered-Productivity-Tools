@@ -7,6 +7,9 @@
  * Changed to CommonJS exports for consistent serverless behavior
  */
 
+// Load environment variables
+require('dotenv').config();
+
 // Using CommonJS for consistent Vercel serverless behavior
 const crypto = require('crypto');
 
