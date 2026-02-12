@@ -13,9 +13,7 @@
  * Added missing readBody function for proper request parsing
  */
 
-/** @vercel { runtime: "nodejs18.x" } */
 
-// Using CommonJS for consistent Vercel serverless behavior
 const crypto = require('crypto');
 
 // In-memory transaction storage (use database in production)
