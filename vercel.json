@@ -2,9 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": null,
   "outputDirectory": ".",
-  "functions": {
-    "api/**/*.js": true
-  },
   "headers": [
     {
       "source": "/(.*)\\.html",
