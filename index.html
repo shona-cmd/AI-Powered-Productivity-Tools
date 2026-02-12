@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Productivity Tools Bundle - Work Smarter, Not Harder</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="payment.css">
+    <link rel="stylesheet" href="auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="#" class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">ProductivityAI</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#tools">Tools</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#" onclick="transactionSystem.showDashboard(); return false;">Dashboard</a></li>
+            </ul>
+            <!-- Auth Section -->
+            <div id="navAuth" class="nav-auth-buttons">
+                <button class="btn btn-outline" onclick="authSystem.openAuthModal('login')">Login</button>
+                <button class="btn btn-primary" onclick="authSystem.openAuthModal('register')">Sign Up</button>
+            </div>
+            <!-- User Display (shown when logged in) -->
+            <div id="userDisplay" class="user-display"></div>
+            <!-- Token Display -->
+            <div id="tokenDisplay"></div>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-bg">
+            <div class="hero-gradient"></div>
+            <div class="hero-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
+        <div class="container hero-content">
+            <div class="hero-badge">🚀 Now with 180+ Premium Prompts</div>
+            <h1 class="hero-title">
+                Stop Working <span class="highlight">Harder</span>.<br>
+                Start Working <span class="highlight gradient-text">Smarter</span>.
+            </h1>
+            <p class="hero-subtitle">
+                Transform your productivity with AI-powered tools. Save 10+ hours every week 
+                with our complete bundle of writing, task management, business, and study tools.
+            </p>
+            <div class="hero-cta">
+                <a href="#pricing" class="btn btn-primary btn-lg">
+                    <span>Get Instant Access</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="#tools" class="btn btn-outline btn-lg">Explore Tools</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value">10K+</span>
+                    <span class="stat-label">Active Users</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value">180+</span>
+                    <span class="stat-label">AI Prompts</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value">95%</span>
+                    <span class="stat-label">Satisfaction</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section id="tools" class="tools section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">AI Tools</span>
+                <h2 class="section-title">Powerful Tools for <span class="gradient-text">Every Need</span></h2>
+                <p class="section-subtitle">
+                    Choose from our specialized AI tools designed to boost productivity in different areas of your life.
+                </p>
+            </div>
+            
+            <div class="tools-grid">
+                <!-- Writing Assistant -->
+                <div class="tool-card" data-tool="writing">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrapper writing">
+                            <span class="tool-icon">✍️</span>
+                        </div>
+                        <div class="tool-badge">Popular</div>
+                    </div>
+                    <h3>AI Writing Assistant</h3>
+                    <p>Create professional emails, blogs, resumes, and content in seconds.</p>
+                    <ul class="tool-features">
+                        <li><span class="check-icon">✓</span> Email Templates</li>
+                        <li><span class="check-icon">✓</span> Blog Generator</li>
+                        <li><span class="check-icon">✓</span> Resume Builder</li>
+                        <li><span class="check-icon">✓</span> Social Media Content</li>
+                    </ul>
+                    <button class="btn btn-secondary tool-btn" onclick="openTool('writing')">
+                        Use Tool <span class="arrow">→</span>
+                    </button>
+                </div>
+
+                <!-- Task Manager -->
+                <div class="tool-card" data-tool="tasks">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrapper tasks">
+                            <span class="tool-icon">📋</span>
+                        </div>
+                    </div>
+                    <h3>AI Task Manager</h3>
+                    <p>Transform your to-do list into smart, prioritized daily plans.</p>
+                    <ul class="tool-features">
+                        <li><span class="check-icon">✓</span> Smart Prioritization</li>
+                        <li><span class="check-icon">✓</span> Time Blocking</li>
+                        <li><span class="check-icon">✓</span> Focus Optimization</li>
+                        <li><span class="check-icon">✓</span> Weekly Reviews</li>
+                    </ul>
+                    <button class="btn btn-secondary tool-btn" onclick="openTool('tasks')">
+                        Use Tool <span class="arrow">→</span>
+                    </button>
+                </div>
+
+                <!-- Business Toolkit -->
+                <div class="tool-card featured" data-tool="business">
+                    <div class="featured-ribbon">🔥 Best Seller</div>
+                    <div class="tool-header">
+                        <div class="tool-icon-wrapper business">
+                            <span class="tool-icon">💼</span>
+                        </div>
+                    </div>
+                    <h3>AI Business Toolkit</h3>
+                    <p>Everything small businesses need to run faster and smarter.</p>
+                    <ul class="tool-features">
+                        <li><span class="check-icon">✓</span> Invoice Templates</li>
+                        <li><span class="check-icon">✓</span> Proposals & Quotes</li>
+                        <li><span class="check-icon">✓</span> Marketing Copy</li>
+                        <li><span class="check-icon">✓</span> Customer Emails</li>
+                    </ul>
+                    <button class="btn btn-primary tool-btn" onclick="openTool('business')">
+                        Use Tool <span class="arrow">→</span>
+                    </button>
+                </div>
+
+                <!-- Student Tool -->
+                <div class="tool-card" data-tool="student">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrapper student">
+                            <span class="tool-icon">📚</span>
+                        </div>
+                        <div class="tool-badge">For Students</div>
+                    </div>
+                    <h3>AI Student Tool</h3>
+                    <p>Study smarter, not longer with AI-powered study assistance.</p>
+                    <ul class="tool-features">
+                        <li><span class="check-icon">✓</span> Notes Summarization</li>
+                        <li><span class="check-icon">✓</span> Exam Prep Questions</li>
+                        <li><span class="check-icon">✓</span> Study Planning</li>
+                        <li><span class="check-icon">✓</span> Essay Assistance</li>
+                    </ul>
+                    <button class="btn btn-secondary tool-btn" onclick="openTool('student')">
+                        Use Tool <span class="arrow">→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Features</span>
+                <h2 class="section-title">Why Choose <span class="gradient-text">Our Tools</span></h2>
+                <p class="section-subtitle">
+                    Built with powerful AI technology to help you achieve more in less time.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <span class="feature-icon">🤖</span>
+                    </div>
+                    <h3>AI-Powered</h3>
+                    <p>Advanced AI technology that learns and adapts to your needs for smarter results.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <span class="feature-icon">⚡</span>
+                    </div>
+                    <h3>Lightning Fast</h3>
+                    <p>Get professional results in seconds, not hours. Save time on every task.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <span class="feature-icon">📊</span>
+                    </div>
+                    <h3>Smart Analytics</h3>
+                    <p>Track your productivity and get insights to improve over time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <span class="feature-icon">🎯</span>
+                    </div>
+                    <h3>Easy to Use</h3>
+                    <p>Simple fill-in-the-blank prompts. No learning curve required.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <span class="feature-icon">🔒</span>
+                    </div>
+                    <h3>Secure & Private</h3>
+                    <p>Your data is protected and never shared. Enterprise-grade security.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <span class="feature-icon">♾️</span>
+                    </div>
+                    <h3>Lifetime Access</h3>
+                    <p>Pay once, use forever. No monthly subscriptions or hidden fees.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Pricing</span>
+                <h2 class="section-title">Simple, Transparent <span class="gradient-text">Pricing</span></h2>
+                <p class="section-subtitle">
+                    Choose the perfect plan for your needs. Save 46% with the complete bundle.
+                </p>
+            </div>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <span class="pricing-tag">Individual</span>
+                        <h3>Single Tool</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">15</span>
+                        </div>
+                        <p class="price-desc">Choose one tool</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span> Single AI tool of choice</li>
+                        <li><span class="check">✓</span> 40+ prompts included</li>
+                        <li><span class="check">✓</span> Lifetime access</li>
+                        <li><span class="check">✓</span> Email support</li>
+                        <li><span class="check">✓</span> Future updates</li>
+                    </ul>
+                    <a href="#" class="btn btn-outline btn-block">Select Tool</a>
+                </div>
+                
+                <div class="pricing-card popular">
+                    <div class="popular-badge"><span>⭐ Best Value</span></div>
+                    <div class="pricing-header">
+                        <span class="pricing-tag">Complete</span>
+                        <h3>All 4 Tools</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">29</span>
+                            <span class="discount">Save $25</span>
+                        </div>
+                        <p class="price-desc">One-time payment</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span> All 4 AI tools</li>
+                        <li><span class="check">✓</span> 180+ prompts total</li>
+                        <li><span class="check">✓</span> All bonuses included</li>
+                        <li><span class="check">✓</span> Priority support</li>
+                        <li><span class="check">✓</span> Lifetime updates</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary btn-block">
+                        <span>Get Bundle Now</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <span class="pricing-tag">Business</span>
+                        <h3>Team License</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">99</span>
+                        </div>
+                        <p class="price-desc">Up to 10 team members</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span> Everything in bundle</li>
+                        <li><span class="check">✓</span> Team management</li>
+                        <li><span class="check">✓</span> API access</li>
+                        <li><span class="check">✓</span> Custom integrations</li>
+                        <li><span class="check">✓</span> Dedicated support</li>
+                    </ul>
+                    <a href="#" class="btn btn-outline btn-block">Contact Sales</a>
+                </div>
+            </div>
+            
+            <div class="pricing-guarantee">
+                <span class="guarantee-icon">🛡️</span>
+                <div class="guarantee-text">
+                    <strong>30-Day Money-Back Guarantee</strong>
+                    <p>Try risk-free. If you're not satisfied, get a full refund.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Testimonials</span>
+                <h2 class="section-title">Loved by <span class="gradient-text">Thousands</span></h2>
+                <p class="section-subtitle">
+                    See what our users are saying about their productivity transformation.
+                </p>
+            </div>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"This AI bundle saved me 10+ hours per week. The writing assistant alone is worth the price!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">👩‍💼</div>
+                        <div class="author-info">
+                            <strong>Sarah M.</strong>
+                            <span>Freelance Writer</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"As a small business owner, the Business Toolkit has transformed how I handle invoices and customer emails."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">👨‍💻</div>
+                        <div class="author-info">
+                            <strong>James K.</strong>
+                            <span>Small Business Owner</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"The Student Tool helped me organize my study schedule and improve my grades significantly."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">👩‍🎓</div>
+                        <div class="author-info">
+                            <strong>Emily R.</strong>
+                            <span>University Student</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>🚀 Ready to Transform Your Productivity?</h2>
+                <p>Join thousands of users who are already saving 10+ hours every week.</p>
+                <div class="cta-buttons">
+                    <a href="#pricing" class="btn btn-white btn-lg">
+                        <span>Get Started Free</span>
+                    </a>
+                </div>
+                <div class="cta-trust">
+                    <span>🔒 Secure checkout</span>
+                    <span>•</span>
+                    <span>Instant delivery</span>
+                    <span>•</span>
+                    <span>30-day guarantee</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Welcome Message -->
+    <div id="welcome"></div>
+
+    <!-- Feature Request Section -->
+    <section id="feature-request" class="feature-request section">
+        <div class="container">
+            <div class="feature-request-content">
+                <div class="feature-request-icon">💬</div>
+                <h2>Have a Feature Request?</h2>
+                <p>Help us improve! Tell us what features you'd like us to add to make the tools even better for you.</p>
+                <div class="feature-request-buttons">
+                    <button class="btn btn-whatsapp" onclick="openFeatureRequest()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        <span>Send Feature Request via WhatsApp</span>
+                    </button>
+                </div>
+                <p class="feature-request-note">We typically respond within 24 hours on WhatsApp</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating WhatsApp Button -->
+    <div class="floating-whatsapp" onclick="openFeatureRequest()">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        <span class="floating-label">Request Feature</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <span class="logo-icon">⚡</span>
+                        <span class="logo-text">ProductivityAI</span>
+                    </a>
+                    <p>Building tools that help people work smarter, faster, and with less stress.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Products</h4>
+                    <ul>
+                        <li><a href="#">Writing Assistant</a></li>
+                        <li><a href="#">Task Manager</a></li>
+                        <li><a href="#">Business Toolkit</a></li>
+                        <li><a href="#">Student Tool</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">Prompt Guide</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Privacy</a></li>
+                        <li><a href="#">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 AI Productivity Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Tool Modal -->
+    <div class="modal" id="toolModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="auth.js"></script>
+    <script src="transactions.js"></script>
+    <script src="payment.js"></script>
+    <script type="module">
+      import { SpeedInsights } from "https://esm.run/@vercel/speed-insights";
+      SpeedInsights.init();
+    </script>
+</body>
+</html>
+
