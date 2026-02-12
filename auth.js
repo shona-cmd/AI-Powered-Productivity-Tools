@@ -70,58 +70,56 @@ class AuthSystem {
     }
 
     /**
-     * Register new user
+     * Register new user (Offline mode)
      */
     async register(name, email, password, phone = '') {
-        try {
-            const response = await fetch(`${this.apiBase}/auth/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password, phone })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                this.saveSession(data.user, data.token);
-                this.showNotification('Account created successfully!', 'success');
-                return { success: true, user: data.user };
-            } else {
-                this.showNotification(data.error || 'Registration failed', 'error');
-                return { success: false, error: data.error };
-            }
-        } catch (error) {
-            console.error('Registration error:', error);
-            this.showNotification('Network error. Please try again.', 'error');
-            return { success: false, error: 'Network error' };
+        // Check if user already exists
+        const existingUsers = JSON.parse(localStorage.getItem('aiProductivityUsers') || '[]');
+        const userExists = existingUsers.find(u => u.email === email);
+
+        if (userExists) {
+            this.showNotification('User already exists with this email', 'error');
+            return { success: false, error: 'User already exists' };
         }
+
+        // Create new user
+        const newUser = {
+            id: Date.now().toString(),
+            name,
+            email,
+            phone,
+            tokens: 10, // Free tokens
+            createdAt: new Date().toISOString()
+        };
+
+        // Save to users list
+        existingUsers.push(newUser);
+        localStorage.setItem('aiProductivityUsers', JSON.stringify(existingUsers));
+
+        // Create token and save session
+        const token = 'offline-token-' + newUser.id;
+        this.saveSession(newUser, token);
+        this.showNotification('Account created successfully!', 'success');
+        return { success: true, user: newUser };
     }
 
     /**
-     * Login user
+     * Login user (Offline mode)
      */
     async login(email, password) {
-        try {
-            const response = await fetch(`${this.apiBase}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                this.saveSession(data.user, data.token);
-                this.showNotification(`Welcome back, ${data.user.name}!`, 'success');
-                return { success: true, user: data.user };
-            } else {
-                this.showNotification(data.error || 'Login failed', 'error');
-                return { success: false, error: data.error };
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            this.showNotification('Network error. Please try again.', 'error');
-            return { success: false, error: 'Network error' };
+        // Get users from localStorage
+        const existingUsers = JSON.parse(localStorage.getItem('aiProductivityUsers') || '[]');
+        const user = existingUsers.find(u => u.email === email);
+
+        if (user) {
+            // Create token and save session
+            const token = 'offline-token-' + user.id;
+            this.saveSession(user, token);
+            this.showNotification(`Welcome back, ${user.name}!`, 'success');
+            return { success: true, user: user };
+        } else {
+            this.showNotification('Invalid email or password', 'error');
+            return { success: false, error: 'Invalid credentials' };
         }
     }
 

@@ -524,21 +524,37 @@ function generateWriting() {
     const tone = document.getElementById('writingTone').value;
     const details = document.getElementById('writingDetails').value;
     const output = document.getElementById('writingOutput');
-    
+
     if (!topic.trim()) {
         showNotification('Please enter a topic or subject', 'warning');
         return;
     }
-    
+
+    // Check tokens
+    if (!paymentSystem || paymentSystem.getTokenBalance() < 1) {
+        showNotification('Insufficient tokens. Please buy more tokens.', 'error');
+        paymentSystem.openPaymentModal();
+        return;
+    }
+
     // Show loading state
     output.innerHTML = '<span class="loading"></span> Generating content...';
-    
-    // Simulate AI generation (in production, this would call an API)
-    setTimeout(() => {
-        const content = generateAIContent('writing', { topic, tone, details });
+
+    // Use AI engine
+    aiEngine.generateWriting('writing', topic, tone, details).then(content => {
         output.innerHTML = content;
+        paymentSystem.saveTokens(-1); // Deduct 1 token
+        paymentSystem.recordTransaction({
+            type: 'usage',
+            tokens: -1,
+            description: 'Writing Assistant - ' + topic.substring(0, 30) + '...',
+            status: 'completed'
+        });
         showNotification('Content generated successfully!', 'success');
-    }, 1500);
+    }).catch(error => {
+        output.innerHTML = 'Error generating content. Please try again.';
+        showNotification('Generation failed. Please check your API key.', 'error');
+    });
 }
 
 // Task Manager Functions
@@ -624,19 +640,36 @@ function renderTasks() {
 function getAITaskSuggestions() {
     const pendingTasks = tasks.filter(t => !t.completed);
     const output = document.getElementById('aiSuggestions');
-    
+
     if (pendingTasks.length === 0) {
         output.innerHTML = '🤖 Add some tasks to get AI suggestions!';
         return;
     }
-    
+
+    // Check tokens
+    if (!paymentSystem || paymentSystem.getTokenBalance() < 1) {
+        showNotification('Insufficient tokens. Please buy more tokens.', 'error');
+        paymentSystem.openPaymentModal();
+        return;
+    }
+
     output.innerHTML = '<span class="loading"></span> Analyzing your tasks...';
-    
-    setTimeout(() => {
-        const suggestions = generateAISuggestions(pendingTasks);
+
+    // Use AI engine
+    aiEngine.getTaskSuggestions(pendingTasks).then(suggestions => {
         output.innerHTML = suggestions;
+        paymentSystem.saveTokens(-1); // Deduct 1 token
+        paymentSystem.recordTransaction({
+            type: 'usage',
+            tokens: -1,
+            description: 'Task Manager AI Suggestions',
+            status: 'completed'
+        });
         showNotification('AI suggestions ready!', 'success');
-    }, 1500);
+    }).catch(error => {
+        output.innerHTML = 'Error generating suggestions. Please try again.';
+        showNotification('Generation failed. Please check your API key.', 'error');
+    });
 }
 
 // Business Toolkit Functions
@@ -644,19 +677,36 @@ function generateBusinessDoc() {
     const type = document.getElementById('businessType').value;
     const details = document.getElementById('businessDetails').value;
     const output = document.getElementById('businessOutput');
-    
+
     if (!details.trim()) {
         showNotification('Please provide details for the document', 'warning');
         return;
     }
-    
+
+    // Check tokens
+    if (!paymentSystem || paymentSystem.getTokenBalance() < 1) {
+        showNotification('Insufficient tokens. Please buy more tokens.', 'error');
+        paymentSystem.openPaymentModal();
+        return;
+    }
+
     output.innerHTML = '<span class="loading"></span> Generating document...';
-    
-    setTimeout(() => {
-        const content = generateAIContent('business', { type, details });
+
+    // Use AI engine
+    aiEngine.generateBusinessDoc(type, details).then(content => {
         output.innerHTML = content;
+        paymentSystem.saveTokens(-1); // Deduct 1 token
+        paymentSystem.recordTransaction({
+            type: 'usage',
+            tokens: -1,
+            description: 'Business Toolkit - ' + type,
+            status: 'completed'
+        });
         showNotification('Document generated successfully!', 'success');
-    }, 1500);
+    }).catch(error => {
+        output.innerHTML = 'Error generating document. Please try again.';
+        showNotification('Generation failed. Please check your API key.', 'error');
+    });
 }
 
 // Student Tool Functions
@@ -679,193 +729,7 @@ function generateStudentContent() {
     }, 1500);
 }
 
-// AI Content Generation (Simulated - Replace with real API calls in production)
-function generateAIContent(type, data) {
-    // This is a simulation. In production, integrate with OpenAI API
-    
-    const templates = {
-        writing: {
-            professional: `Dear [Recipient],
-
-I hope this message finds you well. I'm writing regarding ${data.topic.toLowerCase()}.
-
-${data.details ? `Additional context: ${data.details}\n\n` : ''}I wanted to reach out to discuss this matter further and explore how we can move forward together.
-
-Please let me know if you would be available for a brief call or meeting to discuss this in more detail.
-
-Best regards,
-[Your Name]`,
-            
-            casual: `Hey there! 👋
-
-So, ${data.topic.toLowerCase()} - been on my mind lately!
-
-${data.details ? `Here's the deal: ${data.details}\n\n` : ''}Would love to hear your thoughts on this. Let me know what you think!
-
-Cheers!`,
-            
-            friendly: `Hi there! 🌟
-
-I'm excited to share something with you about ${data.topic.toLowerCase()}!
-
-${data.details ? `Here's what I wanted to mention: ${data.details}\n\n` : ''}Looking forward to hearing from you soon!
-
-Best wishes`
-        },
-        
-        business: {
-            invoice: `INVOICE
-═══════════════════════════════════════
-
-Invoice #: INV-${Date.now().toString().slice(-6)}
-Date: ${new Date().toLocaleDateString()}
-
-Bill To:
-[Client Name]
-[Client Address]
-
-Description                          Amount
-─────────────────────────────────────────────
-${data.details || 'Professional Services'}    $XXX.XX
-
-═══════════════════════════════════════
-Subtotal:                          $XXX.XX
-Tax:                                $XX.XX
-─────────────────────────────────────────────
-TOTAL:                              $XXX.XX
-
-Payment due within 30 days.
-Thank you for your business!`,
-            
-            quote: `QUOTE
-═══════════════════════════════════════
-
-Quote #: QT-${Date.now().toString().slice(-6)}
-Date: ${new Date().toLocaleDateString()}
-
-Prepared for:
-[Client Name]
-
-${data.details ? `Project: ${data.details}\n\n` : ''}
-Item/Service                       Price
-─────────────────────────────────────────────
-[Service Description]              $X,XXX.XX
-
-═══════════════════════════════════════
-Total:                              $X,XXX.XX
-
-Valid for 30 days from date of quote.`,
-            
-            email: `Subject: ${data.details ? data.details.split('\n')[0] : 'Quick Question'}}
-
-Hi [Name],
-
-${data.details || 'I hope you\'re doing well!'}
-
-${data.details ? data.details.split('\n').slice(1).join('\n') : '\n\nLooking forward to hearing from you.\n\nBest regards,\n[Your Name]'}`
-        },
-        
-        student: {
-            summary: `📚 SUMMARY
-
-Key Points from Your Content:
-
-1. [Main Point 1 - Generated from your content]
-2. [Main Point 2 - Generated from your content]
-3. [Main Point 3 - Generated from your content]
-
-Takeaway: ${data.content.substring(0, 100)}...
-
-💡 Tip: Focus on understanding the core concepts rather than memorizing details.`,
-            
-            questions: `📝 PRACTICE QUESTIONS
-
-Based on your material:
-
-1. What are the key concepts discussed in your content?
-   → Answer: [Key concepts extracted from content]
-
-2. How do [concept from content] relate to [related concept]?
-   → Answer: [AI-generated explanation]
-
-3. Can you explain the significance of [topic from content]?
-   → Answer: [Detailed explanation]
-
-4. What are the main arguments presented?
-   → Answer: [Summary of arguments]
-
-5. How would you apply [concept] in a practical scenario?
-   → Answer: [Real-world application]`,
-            
-            plan: `📅 PERSONALIZED STUDY PLAN
-
-Recommended Schedule:
-
-Week 1: Foundation
-- Day 1-2: Review core concepts
-- Day 3-4: Practice basic exercises
-- Day 5: Self-assessment quiz
-
-Week 2: Deep Dive
-- Day 1-2: Advanced topics
-- Day 3-4: Application practice
-- Day 5: Review & reinforce
-
-Week 3: Mastery
-- Day 1-2: Complex problems
-- Day 3-4: Past papers/practice tests
-- Day 5: Final review
-
-💡 Study Tips:
-- Take breaks every 45 minutes
-- Use active recall techniques
-- Teach concepts to others`
-        }
-    };
-    
-    if (type === 'writing') {
-        return templates.writing[data.tone] || templates.writing.professional;
-    } else if (type === 'business') {
-        return templates.business[data.type] || templates.business.email;
-    } else if (type === 'student') {
-        return templates.student[data.toolType] || templates.student.summary;
-    }
-    
-    return 'Content generation failed. Please try again.';
-}
-
-function generateAISuggestions(pendingTasks) {
-    const highPriority = pendingTasks.filter(t => t.priority === 'high' && !t.completed);
-    const mediumPriority = pendingTasks.filter(t => t.priority === 'medium' && !t.completed);
-    const lowPriority = pendingTasks.filter(t => t.priority === 'low' && !t.completed);
-    
-    let suggestions = `🤖 **AI Productivity Analysis**
-
-📊 **Task Overview:**
-• Total pending: ${pendingTasks.length}
-• High priority: ${highPriority.length}
-• Medium priority: ${mediumPriority.length}
-• Low priority: ${lowPriority.length}
-
-💡 **Recommendations:**
-
-1. **Start with:** ${highPriority.length > 0 ? highPriority[0].text : 'No high priority tasks'}
-
-2. **Best time to work:** Morning (9 AM - 12 PM) for complex tasks
-
-3. **Suggested approach:**
-   • Complete high-priority tasks first
-   • Take a 15-minute break
-   • Tackle medium tasks
-   • Finish with low-priority items
-
-4. **Productivity tip:** Try the Pomodoro technique - 25 minutes work, 5 minutes break.
-
-${highPriority.length > 0 ? `\n🎯 **Focus Area:** ${highPriority[0].text}` : ''}
-`;
-    
-    return suggestions;
-}
+// AI Content Generation (Now handled by ai-engine.js)
 
 // Utility Functions
 function copyToClipboard(elementId) {

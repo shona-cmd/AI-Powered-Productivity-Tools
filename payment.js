@@ -262,81 +262,64 @@ class PaymentSystem {
         const phone = document.getElementById('payerPhone').value;
         const transactionRef = document.getElementById('transactionRef').value.trim();
         const selected = document.querySelector('.package-card.selected');
-        
+
         if (!phone || phone.length < 10) {
             this.showVerificationStatus('❌ Please enter your mobile number', 'error');
             return;
         }
-        
+
         if (!transactionRef) {
             this.showVerificationStatus('❌ Please enter your transaction reference', 'error');
             return;
         }
-        
+
         if (!selected) {
             this.showVerificationStatus('❌ Please select a package first', 'error');
             return;
         }
-        
-        const packageId = Object.keys(this.prices).find(key => 
+
+        const packageId = Object.keys(this.prices).find(key =>
             selected.querySelector('.package-tokens').textContent === key.split('_')[0]
         );
-        
+
         // Show loading state
         const btn = document.getElementById('verifyPaymentBtn');
         const btnText = btn.querySelector('.btn-text');
         const btnLoading = btn.querySelector('.btn-loading');
-        
+
         btnText.style.display = 'none';
         btnLoading.style.display = 'inline';
         btn.disabled = true;
-        
-        try {
-            // Create payment session first
-            const sessionResult = await this.createPaymentSession(packageId, phone);
-            
-            if (!sessionResult.success) {
-                this.showVerificationStatus(`❌ ${sessionResult.error || 'Failed to create payment session'}`, 'error');
-                this.resetButton();
-                return;
-            }
-            
-            // Now verify the payment
-            const verifyResponse = await fetch(`${this.apiBase}/payment/verify`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    transactionId: sessionResult.transactionId,
-                    mpesaReference: transactionRef,
-                    phoneNumber: phone
-                })
+
+        // Simulate payment verification (Offline mode)
+        setTimeout(() => {
+            const pkg = this.prices[packageId];
+            const tokensAdded = pkg.tokens;
+
+            // Add tokens
+            this.saveTokens(tokensAdded);
+
+            // Create transaction record
+            this.recordTransaction({
+                type: 'purchase',
+                tokens: tokensAdded,
+                amount: pkg.price,
+                description: `Purchased ${tokensAdded} tokens`,
+                status: 'completed'
             });
-            
-            const verifyData = await verifyResponse.json();
-            
-            if (verifyData.success) {
-                this.saveTokens(verifyData.tokens);
-                this.showVerificationStatus(
-                    `✅ ${verifyData.message}<br><strong>New Balance: ${this.userTokens} Tokens</strong>`,
-                    'success'
-                );
-                
-                // Close modal after 3 seconds
-                setTimeout(() => {
-                    this.closePaymentModal();
-                }, 3000);
-            } else {
-                this.showVerificationStatus(
-                    `⏳ ${verifyData.message}<br><small>Reference: ${sessionResult.transactionId}</small>`,
-                    'pending'
-                );
-            }
-        } catch (error) {
-            console.error('Payment verification error:', error);
-            this.showVerificationStatus('❌ An error occurred. Please try again.', 'error');
-        }
-        
-        this.resetButton();
+
+            this.showVerificationStatus(
+                `✅ Payment verified! ${tokensAdded} tokens added.<br><strong>New Balance: ${this.userTokens} Tokens</strong>`,
+                'success'
+            );
+
+            // Close modal after 3 seconds
+            setTimeout(() => {
+                this.closePaymentModal();
+            }, 3000);
+
+            this.resetButton();
+        }, 2000); // Simulate 2 second verification
     }
 
     showVerificationStatus(message, type) {
@@ -359,15 +342,29 @@ class PaymentSystem {
         }
     }
 
+    recordTransaction(transactionData) {
+        // Get current user
+        const userData = localStorage.getItem('aiProductivityUser');
+        if (!userData) return;
+
+        const user = JSON.parse(userData);
+        const userTransactions = JSON.parse(localStorage.getItem(`transactions_${user.id}`) || '[]');
+
+        // Add new transaction
+        const transaction = {
+            id: Date.now().toString(),
+            ...transactionData,
+            created_at: new Date().toISOString(),
+            user_id: user.id
+        };
+
+        userTransactions.push(transaction);
+        localStorage.setItem(`transactions_${user.id}`, JSON.stringify(userTransactions));
+    }
+
     async checkTransactionStatus(transactionId) {
-        try {
-            const response = await fetch(`${this.apiBase}/payment/status?id=${transactionId}`);
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Status check error:', error);
-            return { error: 'Failed to check status' };
-        }
+        // Offline mode - always return completed for demo
+        return { success: true, status: 'completed' };
     }
 }
 

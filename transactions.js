@@ -29,35 +29,32 @@ class TransactionSystem {
     }
 
     /**
-     * Fetch user transactions
+     * Fetch user transactions (Offline mode)
      */
     async getTransactions(limit = 50, offset = 0) {
         if (!this.isAuthenticated()) {
             return { success: false, error: 'Please login to view transactions' };
         }
 
-        try {
-            const response = await fetch(
-                `${this.apiBase}/transactions?limit=${limit}&offset=${offset}`,
-                { headers: this.getHeaders() }
-            );
+        // Get current user
+        const userData = localStorage.getItem('aiProductivityUser');
+        if (!userData) return { success: false, error: 'User not found' };
 
-            const data = await response.json();
+        const user = JSON.parse(userData);
+        const userTransactions = JSON.parse(localStorage.getItem(`transactions_${user.id}`) || '[]');
 
-            if (data.success) {
-                this.transactions = data.transactions;
-                return {
-                    success: true,
-                    transactions: data.transactions,
-                    total: data.total
-                };
-            } else {
-                return { success: false, error: data.error };
-            }
-        } catch (error) {
-            console.error('Get transactions error:', error);
-            return { success: false, error: 'Network error' };
-        }
+        // Sort by date descending
+        userTransactions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        // Apply pagination
+        const paginatedTransactions = userTransactions.slice(offset, offset + limit);
+
+        this.transactions = paginatedTransactions;
+        return {
+            success: true,
+            transactions: paginatedTransactions,
+            total: userTransactions.length
+        };
     }
 
     /**
@@ -89,7 +86,7 @@ class TransactionSystem {
     }
 
     /**
-     * Export transactions to CSV
+     * Export transactions to CSV (Offline mode)
      */
     async exportTransactions() {
         if (!this.isAuthenticated()) {
@@ -97,29 +94,45 @@ class TransactionSystem {
             return;
         }
 
-        try {
-            const response = await fetch(
-                `${this.apiBase}/transactions/export`,
-                { headers: this.getHeaders() }
-            );
-
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `transactions-${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            } else {
-                alert('Export failed');
-            }
-        } catch (error) {
-            console.error('Export error:', error);
-            alert('Export failed');
+        // Get current user
+        const userData = localStorage.getItem('aiProductivityUser');
+        if (!userData) {
+            alert('User not found');
+            return;
         }
+
+        const user = JSON.parse(userData);
+        const userTransactions = JSON.parse(localStorage.getItem(`transactions_${user.id}`) || '[]');
+
+        if (userTransactions.length === 0) {
+            alert('No transactions to export');
+            return;
+        }
+
+        // Create CSV content
+        const headers = ['Date', 'Type', 'Description', 'Tokens', 'Amount', 'Status'];
+        const csvContent = [
+            headers.join(','),
+            ...userTransactions.map(t => [
+                t.created_at,
+                t.type,
+                t.description || '',
+                t.tokens || 0,
+                t.amount || 0,
+                t.status || 'completed'
+            ].join(','))
+        ].join('\n');
+
+        // Download CSV
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `transactions-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
     }
 
     /**
