@@ -1,12 +1,10 @@
 /**
  * Transactions API for Vercel Serverless
- * 
+ *
  * Handles transaction history, reports, and analytics
- * 
+ *
  * Version 3.0 - Fixed: FUNCTION_INVOCATION_FAILED
  * Changed to CommonJS exports for consistent serverless behavior
- * 
- * @vercel { runtime: "nodejs18.x" }
  */
 
 // Using CommonJS for consistent Vercel serverless behavior

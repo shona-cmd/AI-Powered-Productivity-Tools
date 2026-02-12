@@ -1,19 +1,17 @@
 /**
  * Mobile Money Payment API for Vercel Serverless
- * 
+ *
  * Handles payment verification and token management
  * for the AI Productivity Tools mobile money payment system.
- * 
+ *
  * IMPORTANT: This is a demo implementation. For production:
  * - Use a real payment gateway API (M-Pesa, Airtel Money, etc.)
  * - Store transactions in a database (PostgreSQL, MongoDB, etc.)
  * - Implement proper webhook verification
- * 
+ *
  * Version 3.0 - Fixed: FUNCTION_INVOCATION_FAILED
  * Changed to CommonJS exports for consistent serverless behavior
  * Removed setInterval to prevent runtime crashes
- * 
- * @vercel { runtime: "nodejs18.x" }
  */
 
 // Using CommonJS for consistent Vercel serverless behavior

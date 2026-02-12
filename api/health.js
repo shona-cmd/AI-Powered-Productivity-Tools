@@ -1,10 +1,8 @@
 /**
  * Health Check API for Vercel Serverless
- * 
+ *
  * Properly exports handler for Vercel Serverless Functions
  * with comprehensive error handling
- * 
- * @vercel { runtime: "nodejs18.x" }
  */
 
 // Using CommonJS for Vercel serverless behavior
