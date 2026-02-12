@@ -7,7 +7,7 @@
  * @vercel { runtime: "nodejs18.x" }
  */
 
-// Using CommonJS for consistent Vercel serverless behavior
+// Using CommonJS for Vercel serverless behavior
 const crypto = require('crypto');
 
 /**

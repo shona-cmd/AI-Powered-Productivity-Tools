@@ -21,6 +21,44 @@ class AIEngine {
         return this.apiKey.length > 0;
     }
 
+    // Load cached offline responses
+    loadOfflineResponses() {
+        try {
+            const stored = localStorage.getItem('offline_ai_responses');
+            return stored ? JSON.parse(stored) : {};
+        } catch (error) {
+            console.warn('Failed to load offline responses:', error);
+            return {};
+        }
+    }
+
+    // Save response for offline use
+    saveOfflineResponse(key, response) {
+        try {
+            this.offlineResponses[key] = {
+                response,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('offline_ai_responses', JSON.stringify(this.offlineResponses));
+        } catch (error) {
+            console.warn('Failed to save offline response:', error);
+        }
+    }
+
+    // Get offline response if available and recent
+    getOfflineResponse(key) {
+        const cached = this.offlineResponses[key];
+        if (cached && Date.now() - cached.timestamp < 24 * 60 * 60 * 1000) { // 24 hours
+            return cached.response;
+        }
+        return null;
+    }
+
+    // Generate a unique key for caching requests
+    generateRequestKey(systemPrompt, userPrompt) {
+        return btoa(systemPrompt.substring(0, 25) + userPrompt.substring(0, 25)).substring(0, 50);
+    }
+
     async generate(systemPrompt, userPrompt) {
         if (!this.isConfigured()) {
             throw new Error('API key not configured');
@@ -58,8 +96,23 @@ class AIEngine {
             const content = data.choices[0]?.message?.content || '';
 
             this.cache.set(cacheKey, content);
+
+            // Save for offline use
+            const requestKey = this.generateRequestKey(systemPrompt, userPrompt);
+            this.saveOfflineResponse(requestKey, content);
+
             return content;
         } catch (error) {
+            // If network fails, try offline response
+            if (!navigator.onLine) {
+                const requestKey = this.generateRequestKey(systemPrompt, userPrompt);
+                const offlineResponse = this.getOfflineResponse(requestKey);
+                if (offlineResponse) {
+                    console.log('Using offline AI response');
+                    showNotification('Using cached response (offline mode)', 'info');
+                    return offlineResponse;
+                }
+            }
             console.error('AI Generation Error:', error);
             throw error;
         }

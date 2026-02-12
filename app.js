@@ -31,7 +31,8 @@ function initApp() {
     initAnimations();
     initSmoothScroll();
     initScrollAnimations();
-    
+    registerServiceWorker();
+
     // Set welcome message
     document.getElementById("welcome").innerHTML = `
         <div style="text-align:center">

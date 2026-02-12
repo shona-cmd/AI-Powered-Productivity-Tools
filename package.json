@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "private": true,
   "description": "AI-Powered Productivity Tools with Mobile Money Payment Integration",
-  "type": "module",
   "main": "index.html",
   "scripts": {
     "start": "npx serve .",
