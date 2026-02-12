@@ -3,9 +3,7 @@
 
 # Ignore client-side static assets (already served by index.html)
 web-app/
-*.html
-
-# Ignore documentation and non-deployable content
+web-app/**
 documentation/
 prompt-packs/
 sales-materials/
@@ -13,6 +11,6 @@ bundle/
 .DS_Store
 *.log
 
-# Keep API folder for serverless functions (do not ignore)
-!api/
+# Keep root files for deployment
+!index.html
 

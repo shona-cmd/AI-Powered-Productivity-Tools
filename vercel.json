@@ -3,9 +3,7 @@
   "buildCommand": null,
   "outputDirectory": ".",
   "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
+    "api/**/*.js": true
   },
   "headers": [
     {
