@@ -33,12 +33,26 @@ function initApp() {
     initScrollAnimations();
     registerServiceWorker();
 
-    // Set welcome message
-    document.getElementById("welcome").innerHTML = `
-        <div style="text-align:center">
-            <h1>Welcome to AI Productivity Tools</h1>
-        </div>
-    `;
+    // Set welcome message with token offer
+    const welcomeDiv = document.getElementById("welcome");
+    if (welcomeDiv) {
+        welcomeDiv.innerHTML = `
+            <div class="welcome-banner">
+                <div class="welcome-content">
+                    <h1>🚀 Welcome to AI Productivity Tools</h1>
+                    <p class="welcome-subtitle">Work smarter, not harder with AI-powered assistance</p>
+                    <div class="welcome-offer">
+                        <span class="offer-badge">🎁 NEW USER OFFER</span>
+                        <p class="offer-text">Get <strong>300 FREE TOKENS</strong> when you sign up!</p>
+                        <p class="offer-note">Try all AI tools risk-free. No credit card required.</p>
+                    </div>
+                    <button class="btn btn-primary btn-lg" onclick="authSystem.openAuthModal('register')">
+                        Claim Your Free Tokens
+                    </button>
+                </div>
+            </div>
+        `;
+    }
 }
 
 function registerServiceWorker() {
@@ -974,4 +988,3 @@ Thanks!`;
 window.openFeatureRequest = openFeatureRequest;
 window.sendFeatureRequest = sendFeatureRequest;
 window.requestFeatureForTool = requestFeatureForTool;
-

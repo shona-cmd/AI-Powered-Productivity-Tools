@@ -89,6 +89,7 @@ class AuthSystem {
             email,
             phone,
             tokens: 300, // 300 FREE TOKENS for first-time users
+            isFirstTimeUser: true, // Flag for first-time user
             createdAt: new Date().toISOString()
         };
 
@@ -99,8 +100,11 @@ class AuthSystem {
         // Create token and save session
         const token = 'offline-token-' + newUser.id;
         this.saveSession(newUser, token);
-        this.showNotification('Account created successfully!', 'success');
-        return { success: true, user: newUser };
+        
+        // Show celebration for first-time users
+        this.showFirstTimeUserCelebration(newUser);
+        
+        return { success: true, user: newUser, isFirstTimeUser: true };
     }
 
     /**
@@ -299,6 +303,176 @@ class AuthSystem {
             // Hide token display for non-authenticated users
             if (tokenDisplay) tokenDisplay.style.display = 'none';
         }
+    }
+
+    /**
+     * Show celebration for first-time users
+     */
+    showFirstTimeUserCelebration(user) {
+        // Create celebration modal
+        const modal = document.createElement('div');
+        modal.id = 'firstTimeCelebration';
+        modal.className = 'celebration-modal';
+        modal.innerHTML = `
+            <div class="celebration-content">
+                <div class="celebration-icon">🎉</div>
+                <h2>Welcome, ${user.name}!</h2>
+                <div class="token-bonus">
+                    <div class="token-amount">300</div>
+                    <div class="token-label">FREE TOKENS</div>
+                </div>
+                <p class="celebration-message">
+                    You've received <strong>300 free tokens</strong> to try all our AI tools!
+                </p>
+                <ul class="celebration-features">
+                    <li>✍️ AI Writing Assistant</li>
+                    <li>📋 AI Task Manager</li>
+                    <li>💼 Business Toolkit</li>
+                    <li>📚 Student Tools</li>
+                </ul>
+                <button class="btn btn-primary btn-lg" onclick="authSystem.closeCelebration(); openTool('writing')">
+                    Start Using Tools
+                </button>
+                <p class="celebration-note">Each tool use costs 1 token. Buy more anytime!</p>
+            </div>
+        `;
+        
+        // Add styles
+        Object.assign(modal.style, {
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: '10000',
+            animation: 'fadeIn 0.3s ease'
+        });
+        
+        document.body.appendChild(modal);
+        
+        // Add celebration animation styles
+        if (!document.getElementById('celebrationStyles')) {
+            const style = document.createElement('style');
+            style.id = 'celebrationStyles';
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideUp {
+                    from { transform: translateY(50px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                }
+                .celebration-content {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    padding: 2.5rem;
+                    border-radius: 20px;
+                    text-align: center;
+                    max-width: 450px;
+                    width: 90%;
+                    color: white;
+                    animation: slideUp 0.5s ease;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                }
+                .celebration-icon {
+                    font-size: 4rem;
+                    margin-bottom: 1rem;
+                    animation: pulse 2s infinite;
+                }
+                .celebration-content h2 {
+                    font-size: 1.8rem;
+                    margin-bottom: 1.5rem;
+                    font-weight: 700;
+                }
+                .token-bonus {
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 15px;
+                    padding: 1.5rem;
+                    margin: 1.5rem 0;
+                    border: 3px solid #ffd700;
+                }
+                .token-amount {
+                    font-size: 4rem;
+                    font-weight: 800;
+                    color: #ffd700;
+                    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                    line-height: 1;
+                }
+                .token-label {
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    letter-spacing: 2px;
+                    margin-top: 0.5rem;
+                }
+                .celebration-message {
+                    font-size: 1.1rem;
+                    margin: 1.5rem 0;
+                    line-height: 1.6;
+                }
+                .celebration-features {
+                    list-style: none;
+                    padding: 0;
+                    margin: 1.5rem 0;
+                    text-align: left;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                    padding: 1rem 1.5rem;
+                }
+                .celebration-features li {
+                    padding: 0.5rem 0;
+                    font-size: 1rem;
+                }
+                .celebration-content .btn-primary {
+                    background: #ffd700;
+                    color: #333;
+                    font-weight: 700;
+                    padding: 1rem 2rem;
+                    font-size: 1.1rem;
+                    border: none;
+                    margin-top: 1rem;
+                }
+                .celebration-content .btn-primary:hover {
+                    background: #ffed4e;
+                    transform: translateY(-2px);
+                }
+                .celebration-note {
+                    font-size: 0.9rem;
+                    margin-top: 1rem;
+                    opacity: 0.9;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Mark first-time user as welcomed
+        localStorage.setItem('firstTimeUserWelcomed', 'true');
+    }
+
+    /**
+     * Close celebration modal
+     */
+    closeCelebration() {
+        const modal = document.getElementById('firstTimeCelebration');
+        if (modal) {
+            modal.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => modal.remove(), 300);
+        }
+    }
+
+    /**
+     * Check if user is first-time (for showing special offers)
+     */
+    isFirstTimeUser() {
+        const user = this.getUser();
+        return user && user.isFirstTimeUser && !localStorage.getItem('firstTimeUserWelcomed');
     }
 
     /**
@@ -561,7 +735,10 @@ class AuthSystem {
         if (result.success) {
             this.closeAuthModal();
             this.updateUI();
-            this.showNotification(`Account created! Welcome, ${result.user.name}!`, 'success');
+            // Celebration is shown in the register method for first-time users
+            if (!result.isFirstTimeUser) {
+                this.showNotification(`Welcome back, ${result.user.name}!`, 'success');
+            }
         }
     }
 
@@ -590,4 +767,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Expose globally
 window.authSystem = authSystem;
-

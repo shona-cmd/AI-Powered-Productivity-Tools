@@ -1770,3 +1770,211 @@ footer {
     border-color: var(--success-color);
     background: #ecfdf5;
 }
+
+/* ============================================
+   FIRST-TIME USER OFFER STYLES
+   ============================================ */
+
+/* Welcome Banner */
+.welcome-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem 2rem;
+    border-radius: var(--radius-xl);
+    text-align: center;
+    color: white;
+    margin: 2rem auto;
+    max-width: 800px;
+    box-shadow: var(--shadow-2xl);
+    animation: slideUp 0.6s ease;
+}
+
+.welcome-content h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.welcome-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+.welcome-offer {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.offer-badge {
+    display: inline-block;
+    background: #ffd700;
+    color: #333;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.offer-text {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.offer-text strong {
+    color: #ffd700;
+    font-size: 1.5rem;
+}
+
+.offer-note {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin-top: 0.5rem;
+}
+
+.welcome-banner .btn-primary {
+    background: #ffd700;
+    color: #333;
+    font-weight: 700;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    border: none;
+    margin-top: 1rem;
+}
+
+.welcome-banner .btn-primary:hover {
+    background: #ffed4e;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* New User Offer Banner in Pricing */
+.new-user-offer-banner {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 3px solid #f59e0b;
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    margin: 2rem auto 3rem;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+    0%, 100% { border-color: #f59e0b; }
+    50% { border-color: #fbbf24; }
+}
+
+.new-user-offer-banner .offer-icon {
+    font-size: 3.5rem;
+    flex-shrink: 0;
+}
+
+.new-user-offer-banner .offer-content {
+    flex: 1;
+}
+
+.new-user-offer-banner .offer-content h3 {
+    font-size: 1.5rem;
+    color: #92400e;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.new-user-offer-banner .offer-content p {
+    color: #a16207;
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+}
+
+.new-user-offer-banner .offer-content strong {
+    color: #b45309;
+    font-weight: 700;
+}
+
+.new-user-offer-banner .btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border: none;
+    padding: 0.875rem 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+.new-user-offer-banner .btn-primary:hover {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    transform: translateY(-2px);
+}
+
+.new-user-offer-banner .offer-badge {
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: var(--shadow);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Responsive for offer banners */
+@media (max-width: 768px) {
+    .welcome-banner {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+    }
+    
+    .welcome-content h1 {
+        font-size: 1.75rem;
+    }
+    
+    .welcome-subtitle {
+        font-size: 1rem;
+    }
+    
+    .offer-text {
+        font-size: 1.1rem;
+    }
+    
+    .offer-text strong {
+        font-size: 1.25rem;
+    }
+    
+    .new-user-offer-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .new-user-offer-banner .offer-icon {
+        font-size: 2.5rem;
+    }
+    
+    .new-user-offer-banner .offer-content h3 {
+        font-size: 1.25rem;
+    }
+    
+    .new-user-offer-banner .offer-badge {
+        position: static;
+        margin-top: 1rem;
+        display: inline-block;
+    }
+}
