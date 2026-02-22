@@ -259,8 +259,102 @@
     font-size: 0.9rem;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
+/* ============================================
+   MOBILE RESPONSIVE STYLES - Auth
+   ============================================ */
+
+/* Base Mobile - 480px and below */
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 1.25rem;
+        margin: 0.5rem;
+        border-radius: 12px;
+    }
+    
+    .auth-header {
+        margin-bottom: 1.5rem;
+    }
+    
+    .auth-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .auth-header h2 {
+        font-size: 1.35rem;
+    }
+    
+    .auth-header p {
+        font-size: 0.85rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        font-size: 0.85rem;
+    }
+    
+    .form-group input {
+        padding: 0.75rem;
+        font-size: 16px;
+    }
+    
+    .btn {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .btn-primary {
+        width: 100%;
+    }
+    
+    .btn-outline {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .auth-footer {
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+    
+    .auth-footer p {
+        font-size: 0.85rem;
+    }
+    
+    .user-menu {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .user-name {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.75rem;
+    }
+    
+    .logout-btn {
+        width: 100%;
+        min-height: 40px;
+    }
+    
+    .notification {
+        right: 10px;
+        left: 10px;
+        top: 80px;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .password-strength {
+        margin-top: 0.4rem;
+    }
+}
+
+/* Tablet - 481px to 600px */
+@media (min-width: 481px) and (max-width: 600px) {
     .modal-content {
         padding: 1.5rem;
         margin: 1rem;
@@ -273,6 +367,43 @@
     .user-menu {
         flex-direction: column;
         gap: 0.5rem;
+    }
+}
+
+/* Large Tablet - 601px to 768px */
+@media (min-width: 601px) and (max-width: 768px) {
+    .modal-content {
+        max-width: 90%;
+    }
+}
+
+/* Touch-friendly */
+@media (pointer: coarse) {
+    .btn,
+    .form-group input {
+        min-height: 44px;
+    }
+    
+    .logout-btn {
+        min-height: 44px;
+    }
+}
+
+/* Landscape orientation */
+@media (max-height: 500px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 85vh;
+        overflow-y: auto;
+        margin: 0.5rem auto;
+    }
+    
+    .auth-header {
+        margin-bottom: 1rem;
+    }
+    
+    .auth-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
     }
 }
 

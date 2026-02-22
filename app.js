@@ -41,6 +41,20 @@ function initApp() {
     `;
 }
 
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('SW registered:', registration);
+                })
+                .catch(error => {
+                    console.log('SW registration failed:', error);
+                });
+        });
+    }
+}
+
 function cacheElements() {
     Elements.modal = document.getElementById('toolModal');
     Elements.modalBody = document.getElementById('modalBody');
@@ -102,11 +116,46 @@ function setupEventListeners() {
 function setupMobileMenu() {
     const menuBtn = document.querySelector('.mobile-menu-btn');
     const navLinks = document.querySelector('.nav-links');
+    const navAuth = document.querySelector('.nav-auth-buttons');
     
     if (menuBtn && navLinks) {
         menuBtn.addEventListener('click', () => {
             navLinks.classList.toggle('active');
+            if (navAuth) navAuth.classList.toggle('active');
             menuBtn.classList.toggle('active');
+            document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+        });
+        
+        // Close menu when clicking on a nav link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                if (navAuth) navAuth.classList.remove('active');
+                menuBtn.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (navLinks.classList.contains('active') && 
+                !navLinks.contains(e.target) && 
+                !menuBtn.contains(e.target)) {
+                navLinks.classList.remove('active');
+                if (navAuth) navAuth.classList.remove('active');
+                menuBtn.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // Handle window resize - close menu on desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+                if (navAuth) navAuth.classList.remove('active');
+                menuBtn.classList.remove('active');
+                document.body.style.overflow = '';
+            }
         });
     }
 }
@@ -214,6 +263,13 @@ function initSmoothScroll() {
 
 // ==================== TOOL MODAL ====================
 function openTool(toolName) {
+    // Check if user is logged in before opening tool
+    if (!authSystem || !authSystem.isLoggedIn()) {
+        showNotification('Please login to access the tools', 'warning');
+        authSystem.openAuthModal('login');
+        return;
+    }
+    
     AppState.currentTool = toolName;
     let content = '';
 
@@ -488,9 +544,28 @@ function initTaskManager() {
     
     // Set up enter key for adding tasks
     const taskInput = document.getElementById('newTask');
-    taskInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') addTask();
-    });
+    if (taskInput) {
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+    }
+}
+
+function initTool(toolName) {
+    switch(toolName) {
+        case 'tasks':
+            initTaskManager();
+            break;
+        case 'business':
+            initBusinessToolkit();
+            break;
+        case 'student':
+            initStudentTool();
+            break;
+        case 'writing':
+            // Writing assistant doesn't need special initialization
+            break;
+    }
 }
 
 function initBusinessToolkit() {
@@ -816,6 +891,7 @@ document.head.appendChild(style);
 // Export for global access
 window.openTool = openTool;
 window.closeModal = closeModal;
+window.initTool = initTool;
 window.generateWriting = generateWriting;
 window.addTask = addTask;
 window.toggleTask = toggleTask;
@@ -837,21 +913,11 @@ const WHATSAPP_NUMBER = '256761485613'; // Uganda number
  * This function is called when customers click the "Send Feature Request" button
  */
 function openFeatureRequest() {
-    // Pre-filled message template
-    const message = `Hi! I have a feature suggestion for your AI Productivity Tools:
-
-[Describe the feature you'd like us to add]
-
-This would help me because:
-[Explain how this feature would benefit you]
-
-Thanks!`;
+    // Simplified message template (no newlines to avoid URL issues)
+    const message = `Hi! I have a feature suggestion for AI Productivity Tools. Please describe the feature and how it would help. Thanks!`;
     
-    // Encode the message for URL
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Create the WhatsApp URL
-    const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+    // Create the WhatsApp URL - simplified format
+    const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     
     // Open WhatsApp in a new tab/window
     window.open(whatsappURL, '_blank');

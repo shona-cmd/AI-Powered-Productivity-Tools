@@ -2,9 +2,9 @@
  * Authentication API for Vercel Serverless
  *
  * Handles user registration, login, and session management
- * Uses Supabase for database (free tier available)
+ * Includes email notifications for admin
  *
- * Version 3.0 - Fixed: FUNCTION_INVOCATION_FAILED
+ * Version 4.0 - Added email notifications
  * Changed to CommonJS exports for consistent serverless behavior
  */
 
@@ -13,9 +13,90 @@ require('dotenv').config();
 
 // Using CommonJS for consistent Vercel serverless behavior
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 // Get JWT secret from environment, with safe fallback
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-do-not-use-in-production';
+
+// Admin email for notifications
+const ADMIN_EMAIL = 'nathanielkuts@gmail.com';
+
+// Email transporter configuration
+let transporter = null;
+
+function getTransporter() {
+  if (transporter) return transporter;
+  
+  // Create transporter using Gmail App Password
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER || 'nathanielkuts@gmail.com',
+      pass: process.env.GMAIL_APP_PASSWORD
+    }
+  });
+  
+  return transporter;
+}
+
+/**
+ * Send admin notification email
+ */
+async function sendAdminNotification(type, userData) {
+  try {
+    const transport = getTransporter();
+    
+    let subject = '';
+    let htmlContent = '';
+    
+    if (type === 'register') {
+      subject = '🔔 New User Registration - AI Productivity Tools';
+      htmlContent = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+          <h2 style="color: #4f46e5;">New User Registration</h2>
+          <p>A new user has registered on AI Productivity Tools!</p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <tr><td style="padding: 10px; border: 1px solid #ddd;"><strong>Name</strong></td><td style="padding: 10px; border: 1px solid #ddd;">${userData.name || 'N/A'}</td></tr>
+            <tr><td style="padding: 10px; border: 1px solid #ddd;"><strong>Email</strong></td><td style="padding: 10px; border: 1px solid #ddd;">${userData.email}</td></tr>
+            <tr><td style="padding: 10px; border: 1px solid #ddd;"><strong>Phone</strong></td><td style="padding: 10px; border: 1px solid #ddd;">${userData.phone || 'Not provided'}</td></tr>
+            <tr><td style="padding: 10px; border: 1px solid #ddd;"><strong>Time</strong></td><td style="padding: 10px; border: 1px solid #ddd;">${new Date().toLocaleString()}</td></tr>
+          </table>
+        </div>
+      `;
+    } else if (type === 'login') {
+      subject = '🔔 User Login Notification - AI Productivity Tools';
+      htmlContent = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+          <h2 style="color: #10b981;">User Login</h2>
+          <p>A user has logged in to AI Productivity Tools!</p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <tr><td style="padding: 10px; border: 1px solid #ddd;"><strong>Email</strong></td><td style="padding: 10px; border: 1px solid #ddd;">${userData.email}</td></tr>
+            <tr><td style="padding: 10px; border: 1px solid #ddd;"><strong>Time</strong></td><td style="padding: 10px; border: 1px solid #ddd;">${new Date().toLocaleString()}</td></tr>
+          </table>
+        </div>
+      `;
+    }
+    
+    // Only send if GMAIL_APP_PASSWORD is configured
+    if (!process.env.GMAIL_APP_PASSWORD) {
+      console.log('Email notification (demo mode - no App Password):', subject, userData);
+      return { success: false, demo: true };
+    }
+    
+    const result = await transport.sendMail({
+      from: process.env.GMAIL_USER || 'nathanielkuts@gmail.com',
+      to: ADMIN_EMAIL,
+      subject: subject,
+      html: htmlContent
+    });
+    
+    console.log('Admin notification sent:', type);
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send admin notification:', error);
+    return { success: false, error: error.message };
+  }
+}
 
 /**
  * Generate JWT token
@@ -239,7 +320,7 @@ async function handler(req, res) {
 
 /**
  * Register new user
- * Fixed: Added validation and error handling
+ * Fixed: Added validation, error handling, and email notification
  */
 async function handleRegister(res, body) {
   try {
@@ -265,6 +346,9 @@ async function handleRegister(res, body) {
     const userId = crypto.randomBytes(16).toString('hex');
     const token = generateToken(userId, email);
     
+    // Send admin notification for new registration
+    sendAdminNotification('register', { name, email, phone }).catch(console.error);
+    
     return res.status(201).json({
       success: true,
       user: { id: userId, email, name, phone, tokens: 0 },
@@ -278,7 +362,7 @@ async function handleRegister(res, body) {
 
 /**
  * Login user
- * Fixed: Added validation and error handling
+ * Fixed: Added validation, error handling, and email notification
  */
 async function handleLogin(res, body) {
   try {
@@ -297,6 +381,9 @@ async function handleLogin(res, body) {
     // Demo: Simulate login
     const userId = crypto.randomBytes(16).toString('hex');
     const token = generateToken(userId, email);
+    
+    // Send admin notification for login
+    sendAdminNotification('login', { email }).catch(console.error);
     
     return res.status(200).json({
       success: true,
@@ -345,4 +432,3 @@ async function handleMe(res, headers) {
 
 // Export for Vercel Serverless (CommonJS)
 module.exports = handler;
-

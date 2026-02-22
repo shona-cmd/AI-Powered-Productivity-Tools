@@ -981,31 +981,262 @@ footer {
     background: #059669;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================ */
+
+/* Base Mobile Styles - 480px and below */
+@media (max-width: 480px) {
+    /* Navigation */
+    nav {
+        padding: 0.75rem 1rem;
+        position: relative;
+    }
+    
+    .logo {
+        font-size: 1.1rem;
+    }
+    
+    .logo-icon {
+        font-size: 1.2rem;
+    }
+    
     .nav-links {
         display: none;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: var(--shadow-lg);
+        gap: 0;
+        z-index: 999;
     }
     
-    .hero h1 {
-        font-size: 2.5rem;
+    .nav-links.active {
+        display: flex;
     }
     
-    .hero-subtitle {
+    .nav-links li {
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .nav-links li:last-child {
+        border-bottom: none;
+    }
+    
+    .nav-links a {
+        display: block;
+        padding: 1rem;
         font-size: 1rem;
     }
     
-    .hero-buttons {
+    .nav-auth-buttons {
+        display: none;
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 1rem;
         flex-direction: column;
+        gap: 0.5rem;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        z-index: 998;
+    }
+    
+    .nav-auth-buttons.active {
+        display: flex;
+    }
+    
+    .nav-auth-buttons .btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+    }
+    
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        width: 30px;
+        height: 24px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        z-index: 1001;
+    }
+    
+    .mobile-menu-btn span {
+        width: 100%;
+        height: 3px;
+        background: var(--text-primary);
+        border-radius: 2px;
+        transition: var(--transition);
+    }
+    
+    .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(6px, 6px);
+    }
+    
+    .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -6px);
+    }
+    
+    /* Hero Section */
+    .hero {
+        padding: 5rem 1rem 2.5rem;
+        min-height: auto;
+    }
+    
+    .hero-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.75rem;
+    }
+    
+    .hero h1 {
+        font-size: 1.75rem;
+        line-height: 1.3;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-cta {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .hero-cta .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.875rem 1.5rem;
+        min-height: 48px;
     }
     
     .hero-stats {
         flex-direction: column;
-        gap: 2rem;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
     }
     
-    .section-header h2 {
-        font-size: 2rem;
+    .stat {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+    }
+    
+    .stat-divider {
+        display: none;
+    }
+    
+    /* Sections */
+    section {
+        padding: 3rem 1rem;
+    }
+    
+    .section-header {
+        margin-bottom: 2rem;
+    }
+    
+    .section-tag {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.75rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.95rem;
+    }
+    
+    /* Tools Grid */
+    .tools-grid {
+        gap: 1.25rem;
+    }
+    
+    .tool-card {
+        padding: 1.5rem;
+    }
+    
+    .tool-icon {
+        font-size: 2.5rem;
+    }
+    
+    .tool-card h3 {
+        font-size: 1.25rem;
+    }
+    
+    .tool-card > p {
+        font-size: 0.9rem;
+    }
+    
+    .tool-features {
+        margin-bottom: 1rem;
+    }
+    
+    .tool-features li {
+        font-size: 0.85rem;
+        padding: 0.4rem 0;
+    }
+    
+    .tool-btn {
+        padding: 0.75rem;
+        min-height: 44px;
+        font-size: 0.9rem;
+    }
+    
+    /* Features Grid */
+    .features-grid {
+        gap: 1.25rem;
+    }
+    
+    .feature-card {
+        padding: 1.5rem;
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.1rem;
+    }
+    
+    .feature-card p {
+        font-size: 0.9rem;
+    }
+    
+    /* Pricing Grid */
+    .pricing-grid {
+        gap: 1.5rem;
+    }
+    
+    .pricing-card {
+        padding: 1.5rem;
     }
     
     .pricing-card.popular {
@@ -1016,30 +1247,325 @@ footer {
         transform: translateY(-4px);
     }
     
-    .modal-content {
+    .pricing-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .price {
+        font-size: 2.5rem;
+    }
+    
+    .pricing-features {
+        margin-bottom: 1.5rem;
+    }
+    
+    .pricing-features li {
+        font-size: 0.9rem;
+    }
+    
+    /* Testimonials */
+    .testimonials-grid {
+        gap: 1.25rem;
+    }
+    
+    .testimonial-card {
         padding: 1.5rem;
     }
-}
-
-@media (max-width: 480px) {
-    nav {
+    
+    .testimonial-rating {
+        font-size: 1rem;
+    }
+    
+    .testimonial-text {
+        font-size: 0.95rem;
+    }
+    
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 2rem;
+    }
+    
+    /* CTA Section */
+    .cta-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .cta-content p {
+        font-size: 1rem;
+    }
+    
+    .cta-buttons .btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+    }
+    
+    .cta-trust {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Feature Request */
+    .feature-request h2 {
+        font-size: 1.5rem;
+    }
+    
+    .feature-request p {
+        font-size: 0.95rem;
+    }
+    
+    .btn-whatsapp {
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+    }
+    
+    /* Floating WhatsApp */
+    .floating-whatsapp {
+        width: 56px;
+        height: 56px;
+        bottom: 15px;
+        right: 15px;
+    }
+    
+    .floating-label {
+        display: none;
+    }
+    
+    /* Footer */
+    footer {
+        padding: 3rem 1rem 1.5rem;
+    }
+    
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .footer-brand {
+        text-align: center;
+    }
+    
+    .footer-links {
+        text-align: center;
+    }
+    
+    .footer-links h4 {
+        margin-bottom: 1rem;
+    }
+    
+    .footer-bottom {
+        font-size: 0.85rem;
+    }
+    
+    /* Modal */
+    .modal {
         padding: 1rem;
     }
     
-    section {
-        padding: 3rem 1rem;
+    .modal-content {
+        padding: 1.25rem;
+        margin: 1rem 0;
     }
     
+    .tool-modal-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    
+    .tool-modal-icon {
+        font-size: 2.5rem;
+    }
+    
+    .tool-modal-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .tool-actions {
+        flex-direction: column;
+    }
+    
+    .tool-actions button {
+        width: 100%;
+    }
+    
+    /* Form Elements */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.75rem;
+        font-size: 16px; /* Prevents iOS zoom */
+    }
+    
+    .btn {
+        min-height: 44px;
+        padding: 0.75rem 1.25rem;
+    }
+    
+    .btn-lg {
+        padding: 1rem 1.5rem;
+        min-height: 52px;
+    }
+}
+
+/* Tablet Styles - 481px to 768px */
+@media (min-width: 481px) and (max-width: 768px) {
+    /* Navigation */
+    .nav-links {
+        display: none;
+    }
+    
+    .mobile-menu-btn {
+        display: flex;
+    }
+    
+    .nav-links.active {
+        display: flex;
+    }
+    
+    /* Hero */
     .hero {
-        padding: 6rem 1rem 3rem;
+        padding: 6rem 1.5rem 3rem;
     }
     
     .hero h1 {
-        font-size: 2rem;
+        font-size: 2.25rem;
     }
     
-    .stat-number {
-        font-size: 2rem;
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .hero-cta {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .hero-cta .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Grids - 2 columns */
+    .tools-grid,
+    .features-grid,
+    .pricing-grid,
+    .testimonials-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Footer */
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Pricing Card */
+    .pricing-card.popular {
+        transform: none;
+    }
+}
+
+/* Large Tablet - 769px to 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+    /* Adjust grid columns */
+    .tools-grid,
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .hero h1 {
+        font-size: 3rem;
+    }
+    
+    .pricing-grid {
+        gap: 1.5rem;
+    }
+    
+    .pricing-card.popular {
+        transform: scale(1.02);
+    }
+}
+
+/* Desktop - 1025px and above */
+@media (min-width: 1025px) {
+    .mobile-menu-btn {
+        display: none;
+    }
+}
+
+/* Touch-friendly interactive elements */
+@media (pointer: coarse) {
+    .btn,
+    .nav-links a,
+    .tool-btn,
+    .template-btn,
+    .pricing-btn,
+    .generate-btn,
+    .copy-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-width: 24px;
+        min-height: 24px;
+    }
+}
+
+/* Improved Modal Scrolling on Mobile */
+@media (max-width: 768px) {
+    .modal {
+        align-items: flex-end;
+    }
+    
+    .modal-content {
+        border-radius: 16px 16px 0 0;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        min-height: auto;
+        padding: 5rem 1rem 2rem;
+    }
+    
+    .modal-content {
+        max-height: 85vh;
+        margin: 1rem auto;
+    }
+}
+
+/* High DPI / Retina displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .hero-bg .shape {
+        opacity: 0.5;
+    }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .floating-whatsapp,
+    .mobile-menu-btn {
+        display: none !important;
     }
 }
 

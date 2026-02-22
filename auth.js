@@ -475,17 +475,53 @@ class AuthSystem {
     showForgotPassword() { this.showForm('forgot'); }
 
     /**
+     * Check if user is logged in, show login modal if not
+     * Returns true if logged in, false if not
+     */
+    requireLogin() {
+        if (!this.isAuthenticated) {
+            this.showNotification('Please login to access this feature', 'warning');
+            this.openAuthModal('login');
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Handle login form submission
      */
     async handleLogin() {
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
         
-        const result = await this.login(email, password);
+        // Try server login first, then fallback to local
+        let result = null;
+        
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+            if (data.success) {
+                result = { success: true, user: data.user };
+                // Save session from server response
+                this.saveSession(data.user, data.token);
+            }
+        } catch (e) {
+            console.log('Server login failed, trying local...');
+        }
+        
+        // Fallback to local login
+        if (!result) {
+            result = await this.login(email, password);
+        }
         
         if (result.success) {
             this.closeAuthModal();
             this.updateUI();
+            this.showNotification(`Welcome back, ${result.user.name}! You can now access all tools.`, 'success');
         }
     }
 
@@ -498,11 +534,34 @@ class AuthSystem {
         const phone = document.getElementById('regPhone').value;
         const password = document.getElementById('regPassword').value;
         
-        const result = await this.register(name, email, password, phone);
+        // Try server registration first, then fallback to local
+        let result = null;
+        
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, name, phone })
+            });
+            const data = await response.json();
+            if (data.success) {
+                result = { success: true, user: data.user };
+                // Save session from server response
+                this.saveSession(data.user, data.token);
+            }
+        } catch (e) {
+            console.log('Server registration failed, trying local...');
+        }
+        
+        // Fallback to local registration
+        if (!result) {
+            result = await this.register(name, email, password, phone);
+        }
         
         if (result.success) {
             this.closeAuthModal();
             this.updateUI();
+            this.showNotification(`Account created! Welcome, ${result.user.name}!`, 'success');
         }
     }
 

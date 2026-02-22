@@ -420,15 +420,156 @@
     box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
 }
 
-/* Responsive */
-@media (max-width: 600px) {
+/* ============================================
+   MOBILE RESPONSIVE STYLES - Payment
+   ============================================ */
+
+/* Base Mobile - 480px and below */
+@media (max-width: 480px) {
     .modal-content {
-        padding: 1.5rem;
-        margin: 1rem;
+        padding: 1rem;
+        margin: 0.5rem;
+        border-radius: 12px;
+    }
+    
+    .payment-header h2 {
+        font-size: 1.35rem;
+    }
+    
+    .payment-icon {
+        font-size: 2.5rem;
+    }
+    
+    .security-badge {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .phone-display {
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+    
+    .phone-label {
+        font-size: 0.85rem;
+    }
+    
+    .phone-number {
+        font-size: 1.25rem;
+    }
+    
+    .network-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .token-packages h3 {
+        font-size: 1rem;
     }
     
     .package-grid {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .package-card {
+        padding: 1rem;
+    }
+    
+    .package-tokens {
+        font-size: 1.75rem;
+    }
+    
+    .package-price {
+        font-size: 1rem;
+    }
+    
+    .package-savings {
+        font-size: 0.7rem;
+    }
+    
+    .payment-form {
+        padding: 1rem;
+    }
+    
+    .selected-package-display {
+        padding: 0.75rem;
+    }
+    
+    .selected-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .form-group {
+        margin-bottom: 0.75rem;
+    }
+    
+    .form-group label {
+        font-size: 0.85rem;
+    }
+    
+    .form-group input {
+        padding: 0.75rem;
+        font-size: 16px;
+    }
+    
+    .payment-instructions {
+        padding: 0.75rem;
+    }
+    
+    .payment-instructions h4 {
+        font-size: 0.9rem;
+    }
+    
+    .payment-instructions ol {
+        font-size: 0.8rem;
+        padding-left: 1rem;
+    }
+    
+    .btn {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .verification-status {
+        padding: 0.75rem;
+    }
+    
+    .payment-footer {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+    }
+    
+    .payment-footer p {
+        font-size: 0.8rem;
+    }
+    
+    .token-display {
+        right: 10px;
+        top: 70px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        gap: 0.5rem;
+    }
+    
+    .token-display button {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Tablet - 481px to 600px */
+@media (min-width: 481px) and (max-width: 600px) {
+    .modal-content {
+        padding: 1.25rem;
+        margin: 1rem;
+    }
+    
+    .package-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
     
     .phone-display {
@@ -441,6 +582,37 @@
         top: 80px;
         padding: 0.5rem 0.75rem;
         font-size: 0.9rem;
+    }
+}
+
+/* Large Tablet - 601px to 768px */
+@media (min-width: 601px) and (max-width: 768px) {
+    .package-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .modal-content {
+        max-width: 90%;
+    }
+}
+
+/* Touch-friendly */
+@media (pointer: coarse) {
+    .package-card,
+    .btn {
+        min-height: 44px;
+    }
+    
+    .form-group input {
+        min-height: 44px;
+    }
+}
+
+/* Landscape orientation */
+@media (max-height: 500px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 85vh;
+        overflow-y: auto;
     }
 }
 
