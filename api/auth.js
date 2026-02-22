@@ -342,7 +342,7 @@ async function handleRegister(res, body) {
       return res.status(400).json({ error: 'Invalid email format' });
     }
     
-    // Demo: Simulate user creation
+    // Demo: Simulate user creation with 300 FREE TOKENS
     const userId = crypto.randomBytes(16).toString('hex');
     const token = generateToken(userId, email);
     
@@ -351,7 +351,7 @@ async function handleRegister(res, body) {
     
     return res.status(201).json({
       success: true,
-      user: { id: userId, email, name, phone, tokens: 0 },
+      user: { id: userId, email, name, phone, tokens: 300 }, // 300 FREE TOKENS
       token
     });
   } catch (error) {
@@ -378,7 +378,7 @@ async function handleLogin(res, body) {
       return res.status(400).json({ error: 'Invalid email format' });
     }
     
-    // Demo: Simulate login
+    // Demo: Simulate login with 300 FREE TOKENS
     const userId = crypto.randomBytes(16).toString('hex');
     const token = generateToken(userId, email);
     
@@ -387,7 +387,7 @@ async function handleLogin(res, body) {
     
     return res.status(200).json({
       success: true,
-      user: { id: userId, email, name: 'Demo User', tokens: 0 },
+      user: { id: userId, email, name: 'Demo User', tokens: 300 }, // 300 FREE TOKENS
       token
     });
   } catch (error) {
@@ -421,7 +421,7 @@ async function handleMe(res, headers) {
         id: decoded.userId,
         email: decoded.email,
         name: 'Demo User',
-        tokens: 0
+        tokens: 300 // 300 FREE TOKENS
       }
     });
   } catch (error) {

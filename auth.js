@@ -82,13 +82,13 @@ class AuthSystem {
             return { success: false, error: 'User already exists' };
         }
 
-        // Create new user
+        // Create new user with 300 FREE TOKENS
         const newUser = {
             id: Date.now().toString(),
             name,
             email,
             phone,
-            tokens: 10, // Free tokens
+            tokens: 300, // 300 FREE TOKENS for first-time users
             createdAt: new Date().toISOString()
         };
 
