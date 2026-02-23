@@ -101,6 +101,16 @@ class AuthSystem {
         const token = 'offline-token-' + newUser.id;
         this.saveSession(newUser, token);
         
+        // Set initial token balance for payment system (300 FREE TOKENS)
+        localStorage.setItem('aiProductivityTokens', '300');
+        
+        // Update payment system token display
+        if (paymentSystem) {
+            paymentSystem.userTokens = 300;
+            paymentSystem.updateTokenDisplay();
+            paymentSystem.updateHeaderTokenDisplay();
+        }
+        
         // Show celebration for first-time users
         this.showFirstTimeUserCelebration(newUser);
         
@@ -119,6 +129,12 @@ class AuthSystem {
             // Create token and save session
             const token = 'offline-token-' + user.id;
             this.saveSession(user, token);
+            
+            // Sync token balance from user object to payment system
+            if (user.tokens && user.tokens > 0) {
+                localStorage.setItem('aiProductivityTokens', user.tokens.toString());
+            }
+            
             this.showNotification(`Welcome back, ${user.name}!`, 'success');
             return { success: true, user: user };
         } else {

@@ -36,7 +36,19 @@ class PaymentSystem {
         this.userTokens += amount;
         localStorage.setItem('aiProductivityTokens', this.userTokens.toString());
         this.updateTokenDisplay();
+        this.updateHeaderTokenDisplay();
         return this.userTokens;
+    }
+    
+    updateHeaderTokenDisplay() {
+        const headerDisplay = document.getElementById('tokenDisplay');
+        if (headerDisplay) {
+            headerDisplay.innerHTML = `
+                <span>🪙 ${this.userTokens} Tokens</span>
+                <button onclick="paymentSystem.openPaymentModal()">+ Buy</button>
+            `;
+            headerDisplay.style.display = 'flex';
+        }
     }
 
     getTokenBalance() {
