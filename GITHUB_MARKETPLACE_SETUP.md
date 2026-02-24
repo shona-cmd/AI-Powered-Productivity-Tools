@@ -17,7 +17,8 @@ This guide will help you list the AI Productivity Tools Bundle on GitHub Marketp
    - **Description**: A complete AI productivity tools bundle to help students, professionals, and businesses work smarter with AI-powered writing, task management, business tools, and study assistance.
    - **Homepage URL**: https://github.com/shona-cmd/AI-Powered-Productivity-Tools
    - **Authorization callback URL**: https://github.com/shona-cmd/AI-Powered-Productivity-Tools
-   - **Webhook**: Uncheck (not needed for this listing)
+   - **Webhook URL**: https://your-app-url.com/api/webhook (see below)
+   - **Webhook secret**: Create a secret for signature verification
 
 3. Click "Create GitHub App"
 
@@ -43,6 +44,27 @@ This guide will help you list the AI Productivity Tools Bundle on GitHub Marketp
 - `assets/icon.svg` - App icon (convert to PNG before uploading)
 - `PRIVACY.md` - Privacy policy
 - `.github/app.yml` - App configuration
+- `api/webhook.js` - Webhook endpoint for handling GitHub events
+
+## Webhook URL Setup
+
+We've created `api/webhook.js` to handle GitHub events. Once deployed, your webhook URL will be:
+
+- **Vercel**: `https://your-app-name.vercel.app/api/webhook`
+- **Netlify**: `https://your-site-name.netlify.app/api/webhook`
+
+### Events Handled:
+- `marketplace_purchase` - New purchases, cancellations, plan changes
+- `issues` - Issue events
+- `pull_request` - Pull request events  
+- `push` - Code push events
+
+### To enable webhooks:
+1. Deploy your app to Vercel or Netlify
+2. Get your deployed URL
+3. Go to GitHub App settings → Webhook
+4. Add your URL: `https://your-deployed-url.com/api/webhook`
+5. Select events to subscribe to
 
 ## Tips for Approval
 1. Make sure your app has a clear purpose
