@@ -12,9 +12,23 @@ module.exports = (req, res) => {
     return;
   }
 
-  // Verify webhook signature (optional - for production, implement secret verification)
+  // Verify webhook signature for security
   const signature = req.headers['x-hub-signature-256'];
   const event = req.headers['x-github-event'];
+  const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET;
+  
+  // Verify the request comes from GitHub
+  if (webhookSecret && signature) {
+    const crypto = require('crypto');
+    const hmac = crypto.createHmac('sha256', webhookSecret);
+    const digest = 'sha256=' + hmac.update(JSON.stringify(req.body)).digest('hex');
+    
+    if (signature !== digest) {
+      console.log('WARNING: Invalid webhook signature!');
+      res.status(401).json({ error: 'Invalid signature' });
+      return;
+    }
+  }
   
   console.log(`Received GitHub webhook event: ${event}`);
   
