@@ -1,0 +1,32 @@
+name: Generate Directory Listing
+
+on:
+  push:
+    branches: [main, gh-pages]
+  workflow_dispatch:
+
+jobs:
+  generate-listing:
+    name: Generate Directory Listing
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Generate Directory listing
+        uses: yKicchan/generate-directory-listing-action@v1
+        with:
+          target: .
+          output: dist
+          exclude: |
+            .git
+            node_modules
+            .github
+            dist
+            
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: directory-listing
+          path: dist
