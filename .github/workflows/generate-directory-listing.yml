@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Generate Directory listing
-        uses: yKicchan/generate-directory-listing-action@v1
+        uses: yKicchan/generate-directory-listing-action@v1.0.0
         with:
           target: .
           output: dist
