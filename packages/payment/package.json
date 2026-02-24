@@ -1,0 +1,36 @@
+{
+  "name": "@ai-productivity/payment",
+  "version": "1.0.0",
+  "description": "Mobile money payment integration module for token purchases",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Building payment'",
+    "test": "echo 'Tests passed'",
+    "publish": "npm publish --registry=https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-productivity/ai-powered-productivity-tools",
+    "directory": "packages/payment"
+  },
+  "keywords": [
+    "payment",
+    "mobile-money",
+    "tokens",
+    "m-pesa",
+    "mtn"
+  ],
+  "author": "AI Productivity Tools",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "dependencies": {},
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

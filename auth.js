@@ -133,6 +133,13 @@ class AuthSystem {
             // Sync token balance from user object to payment system
             if (user.tokens && user.tokens > 0) {
                 localStorage.setItem('aiProductivityTokens', user.tokens.toString());
+                
+                // Update payment system immediately after login
+                if (paymentSystem) {
+                    paymentSystem.userTokens = user.tokens;
+                    paymentSystem.updateTokenDisplay();
+                    paymentSystem.updateHeaderTokenDisplay();
+                }
             }
             
             this.showNotification(`Welcome back, ${user.name}!`, 'success');

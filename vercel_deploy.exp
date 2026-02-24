@@ -1,0 +1,35 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+
+# Start the Vercel deployment
+spawn vercel --prod
+
+# Wait for and respond to prompts
+expect {
+    "Want to deploy" {
+        send "y\r"
+        exp_continue
+    }
+    "Continue?" {
+        send "y\r"
+        exp_continue
+    }
+    "Linked to" {
+        send "y\r"
+        exp_continue
+    }
+    "Scope" {
+        send "y\r"
+        exp_continue
+    }
+    "Production" {
+        send "y\r"
+        exp_continue
+    }
+    eof {
+        puts "Deployment completed"
+    }
+}
+
+expect eof

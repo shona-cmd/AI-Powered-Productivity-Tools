@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="payment.css">
     <link rel="stylesheet" href="auth.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CodeMirror for VS Code Editor Feature -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material-darker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -180,6 +185,129 @@
                         <li><span class="check-icon">✓</span> Essay Assistance</li>
                     </ul>
                     <button class="btn btn-secondary tool-btn" onclick="openTool('student')">
+                        Use Tool <span class="arrow">→</span>
+                    </button>
+                </div>
+
+                <!-- Code Editor Tool -->
+                <div class="tool-card" data-tool="code">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrapper code">
+                            <span class="tool-icon">💻</span>
+                        </div>
+                        <div class="tool-badge">New</div>
+                    </div>
+                    <h3>VS Code Editor</h3>
+                    <p>Write, debug, and optimize code with AI assistance.</p>
+                    <ul class="tool-features">
+                        <li><span class="check-icon">✓</span> Syntax Highlighting</li>
+                        <li><span class="check-icon">✓</span> Multiple Languages</li>
+                        <li><span class="check-icon">✓</span> AI Code Review</li>
+                        <li><span class="check-icon">✓</span> Save Snippets</li>
+                    </ul>
+                    <button class="btn btn-secondary tool-btn" onclick="openTool('code')">
+                        Use Tool <span class="arrow">→</span>
+                    </button>
+                </div>
+
+                <!-- AI Chat Assistant -->
+                <div class="tool-card" data-tool="chat">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrapper chat">
+                            <span class="tool-icon">🤖</span>
+                        </div>
+                        <div class="tool-badge">Popular</div>
+                    </div>
+                    <h3>AI Chat Assistant</h3>
+                    <p>Have conversations with GPT-4, Claude, and Gemini.</p>
+                    <ul class="tool-features">
+                        <li><span class="check-icon">✓</span> GPT-4 Turbo</li>
+                        <li><span class="check-icon">✓</span> Claude 3 Opus</li>
+                        <li><span class="check-icon">✓</span> Gemini Pro</li>
+                        <li><span class="check-icon">✓</span> Smart Context</li>
+                    </ul>
+                    <button class="btn btn-secondary tool-btn" onclick="openTool('chat')">
+                        Use Tool <span class="arrow">→</span>
+                    </button>
+                </div>
+
+                <!-- AI Image Generator -->
+                <div class="tool-card" data-tool="image">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrapper image">
+                            <span class="tool-icon">🎨</span>
+                        </div>
+                        <div class="tool-badge">New</div>
+                    </div>
+                    <h3>AI Image Generator</h3>
+                    <p>Create stunning images from text descriptions.</p>
+                    <ul class="tool-features">
+                        <li><span class="check-icon">✓</span> DALL-E 3 Quality</li>
+                        <li><span class="check-icon">✓</span> Multiple Sizes</li>
+                        <li><span class="check-icon">✓</span> HD Quality</li>
+                        <li><span class="check-icon">✓</span> Commercial Use</li>
+                    </ul>
+                    <button class="btn btn-secondary tool-btn" onclick="openTool('image')">
+                        Use Tool <span class="arrow">→</span>
+                    </button>
+                </div>
+
+                <!-- AI Translator -->
+                <div class="tool-card" data-tool="translate">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrapper translate">
+                            <span class="tool-icon">🌍</span>
+                        </div>
+                    </div>
+                    <h3>AI Translator</h3>
+                    <p>Translate content between 50+ languages.</p>
+                    <ul class="tool-features">
+                        <li><span class="check-icon">✓</span> 50+ Languages</li>
+                        <li><span class="check-icon">✓</span> Auto-detect</li>
+                        <li><span class="check-icon">✓</span> Natural Translation</li>
+                        <li><span class="check-icon">✓</span> Preserve Tone</li>
+                    </ul>
+                    <button class="btn btn-secondary tool-btn" onclick="openTool('translate')">
+                        Use Tool <span class="arrow">→</span>
+                    </button>
+                </div>
+
+                <!-- SEO Optimizer -->
+                <div class="tool-card" data-tool="seo">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrapper seo">
+                            <span class="tool-icon">🔍</span>
+                        </div>
+                    </div>
+                    <h3>SEO Optimizer</h3>
+                    <p>Rank #1 on Google with AI-powered SEO.</p>
+                    <ul class="tool-features">
+                        <li><span class="check-icon">✓</span> Keyword Optimization</li>
+                        <li><span class="check-icon">✓</span> Meta Tags</li>
+                        <li><span class="check-icon">✓</span> Content Analysis</li>
+                        <li><span class="check-icon">✓</span> Competitor Insights</li>
+                    </ul>
+                    <button class="btn btn-secondary tool-btn" onclick="openTool('seo')">
+                        Use Tool <span class="arrow">→</span>
+                    </button>
+                </div>
+
+                <!-- AI Research -->
+                <div class="tool-card" data-tool="research">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrapper research">
+                            <span class="tool-icon">📊</span>
+                        </div>
+                    </div>
+                    <h3>AI Research</h3>
+                    <p>Get comprehensive research on any topic.</p>
+                    <ul class="tool-features">
+                        <li><span class="check-icon">✓</span> Deep Analysis</li>
+                        <li><span class="check-icon">✓</span> Statistics & Facts</li>
+                        <li><span class="check-icon">✓</span> Expert Insights</li>
+                        <li><span class="check-icon">✓</span> Source Citations</li>
+                    </ul>
+                    <button class="btn btn-secondary tool-btn" onclick="openTool('research')">
                         Use Tool <span class="arrow">→</span>
                     </button>
                 </div>
@@ -505,6 +633,16 @@
         </div>
     </div>
 
+    <!-- CodeMirror Scripts for VS Code Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+    
     <script src="ai-engine.js"></script>
     <script src="app.js"></script>
     <script src="auth.js"></script>

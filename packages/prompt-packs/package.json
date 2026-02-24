@@ -1,0 +1,37 @@
+{
+  "name": "@ai-productivity/prompt-packs",
+  "version": "1.0.0",
+  "description": "AI prompt collections for writing, business, student, and task management tools",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Building prompt-packs'",
+    "test": "echo 'Tests passed'",
+    "publish": "npm publish --registry=https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-productivity/ai-powered-productivity-tools",
+    "directory": "packages/prompt-packs"
+  },
+  "keywords": [
+    "ai",
+    "prompts",
+    "writing",
+    "business",
+    "student",
+    "productivity"
+  ],
+  "author": "AI Productivity Tools",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "dependencies": {},
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

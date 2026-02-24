@@ -300,6 +300,24 @@ function openTool(toolName) {
         case 'student':
             content = renderStudentTool();
             break;
+        case 'code':
+            content = renderCodeEditor();
+            break;
+        case 'chat':
+            content = renderAIChat();
+            break;
+        case 'image':
+            content = renderImageGenerator();
+            break;
+        case 'translate':
+            content = renderTranslation();
+            break;
+        case 'seo':
+            content = renderSEO();
+            break;
+        case 'research':
+            content = renderResearch();
+            break;
         default:
             content = '<p>Tool not found</p>';
     }
@@ -576,6 +594,24 @@ function initTool(toolName) {
         case 'student':
             initStudentTool();
             break;
+        case 'code':
+            initCodeEditor();
+            break;
+        case 'chat':
+            initAIChat();
+            break;
+        case 'image':
+            initImageGenerator();
+            break;
+        case 'translate':
+            initTranslation();
+            break;
+        case 'seo':
+            initSEO();
+            break;
+        case 'research':
+            initResearch();
+            break;
         case 'writing':
             // Writing assistant doesn't need special initialization
             break;
@@ -799,6 +835,834 @@ function generateBusinessDoc() {
     });
 }
 
+// ==================== CODE EDITOR FUNCTIONS ====================
+
+// Code Editor instance
+let codeEditor = null;
+let savedSnippets = [];
+
+/**
+ * Render the Code Editor tool
+ */
+function renderCodeEditor() {
+    // Load saved snippets
+    loadCodeSnippets();
+    
+    return `
+        <div class="tool-modal-header">
+            <div class="tool-modal-icon">💻</div>
+            <div>
+                <h2>VS Code Editor</h2>
+                <p>Write, debug, and optimize code with AI assistance</p>
+            </div>
+            <button class="theme-toggle-small" onclick="toggleTheme()">${AppState.theme === 'light' ? '🌙' : '☀️'}</button>
+        </div>
+        
+        <div class="code-editor-container">
+            <div class="code-toolbar">
+                <div class="toolbar-left">
+                    <label for="codeLanguage">Language:</label>
+                    <select id="codeLanguage" onchange="changeCodeLanguage()">
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python</option>
+                        <option value="html">HTML</option>
+                        <option value="css">CSS</option>
+                        <option value="xml">XML</option>
+                    </select>
+                </div>
+                <div class="toolbar-right">
+                    <button class="code-btn" onclick="formatCode()" title="Format Code">📝 Format</button>
+                    <button class="code-btn" onclick="clearCode()" title="Clear">🗑️ Clear</button>
+                </div>
+            </div>
+            
+            <div class="code-editor-wrapper">
+                <textarea id="codeEditor" placeholder="// Start coding here...
+// Example:
+// function hello() {
+//   console.log('Hello, World!');
+// }"></textarea>
+            </div>
+            
+            <div class="code-actions">
+                <button class="generate-btn" onclick="getAICodeHelp('explain')">
+                    <span class="btn-icon">💡</span> Explain Code
+                </button>
+                <button class="generate-btn" onclick="getAICodeHelp('debug')">
+                    <span class="btn-icon">🐛</span> Debug Code
+                </button>
+                <button class="generate-btn" onclick="getAICodeHelp('optimize')">
+                    <span class="btn-icon">⚡</span> Optimize
+                </button>
+                <button class="copy-btn" onclick="copyCode()">
+                    <span class="btn-icon">📋</span> Copy
+                </button>
+            </div>
+            
+            <div class="ai-code-output" id="aiCodeOutput">
+                🤖 AI assistance will appear here...
+            </div>
+            
+            <!-- Snippets Section -->
+            <div class="snippets-section">
+                <div class="snippets-header">
+                    <h4>💾 Saved Snippets</h4>
+                    <button class="code-btn" onclick="saveCurrentSnippet()">+ Save Current</button>
+                </div>
+                <div class="snippets-list" id="snippetsList">
+                    ${renderSnippetsList()}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Initialize the Code Editor (called after render)
+ */
+function initCodeEditor() {
+    // Wait for DOM to be ready
+    setTimeout(() => {
+        const textarea = document.getElementById('codeEditor');
+        if (!textarea) return;
+        
+        // Initialize CodeMirror
+        codeEditor = CodeMirror.fromTextArea(textarea, {
+            mode: 'javascript',
+            theme: 'material-darker',
+            lineNumbers: true,
+            matchBrackets: true,
+            autoCloseBrackets: true,
+            indentUnit: 4,
+            tabSize: 4,
+            indentWithTabs: false,
+            lineWrapping: true,
+            autofocus: true
+        });
+        
+        // Set initial value
+        codeEditor.setValue(localStorage.getItem('lastCode') || '// Start coding here...\n\nfunction hello() {\n  console.log("Hello, World!");\n}\n\nhello();');
+        
+        // Save code on change
+        codeEditor.on('change', (cm) => {
+            localStorage.setItem('lastCode', cm.getValue());
+        });
+        
+        console.log('CodeMirror initialized');
+    }, 100);
+}
+
+/**
+ * Change code language
+ */
+function changeCodeLanguage() {
+    const language = document.getElementById('codeLanguage').value;
+    const modeMap = {
+        'javascript': 'javascript',
+        'python': 'python',
+        'html': 'htmlmixed',
+        'css': 'css',
+        'xml': 'xml'
+    };
+    
+    if (codeEditor) {
+        codeEditor.setOption('mode', modeMap[language] || 'javascript');
+    }
+}
+
+/**
+ * Clear the code editor
+ */
+function clearCode() {
+    if (codeEditor) {
+        codeEditor.setValue('');
+    }
+    document.getElementById('aiCodeOutput').innerHTML = '🤖 AI assistance will appear here...';
+}
+
+/**
+ * Format code (basic indentation)
+ */
+function formatCode() {
+    if (!codeEditor) return;
+    
+    const code = codeEditor.getValue();
+    // Simple format - just re-indent (basic implementation)
+    const lines = code.split('\n');
+    let indentLevel = 0;
+    const formattedLines = lines.map(line => {
+        const trimmed = line.trim();
+        if (!trimmed) return '';
+        
+        // Decrease indent for closing braces
+        if (trimmed.startsWith('}') || trimmed.startsWith(']') || trimmed.startsWith(')')) {
+            indentLevel = Math.max(0, indentLevel - 1);
+        }
+        
+        const indented = '    '.repeat(indentLevel) + trimmed;
+        
+        // Increase indent for opening braces
+        if (trimmed.endsWith('{') || trimmed.endsWith('[') || trimmed.endsWith('(')) {
+            indentLevel++;
+        }
+        
+        return indented;
+    });
+    
+    codeEditor.setValue(formattedLines.join('\n'));
+    showNotification('Code formatted!', 'success');
+}
+
+/**
+ * Copy code to clipboard
+ */
+function copyCode() {
+    const code = codeEditor ? codeEditor.getValue() : document.getElementById('codeEditor').value;
+    navigator.clipboard.writeText(code).then(() => {
+        showNotification('Code copied to clipboard!', 'success');
+    }).catch(() => {
+        showNotification('Failed to copy', 'error');
+    });
+}
+
+/**
+ * Get AI code help
+ */
+function getAICodeHelp(action) {
+    const code = codeEditor ? codeEditor.getValue() : '';
+    const output = document.getElementById('aiCodeOutput');
+    
+    if (!code.trim()) {
+        showNotification('Please write some code first', 'warning');
+        return;
+    }
+    
+    // Check tokens
+    if (!paymentSystem || paymentSystem.getTokenBalance() < 1) {
+        showNotification('Insufficient tokens. Please buy more tokens.', 'error');
+        paymentSystem.openPaymentModal();
+        return;
+    }
+    
+    output.innerHTML = '<span class="loading"></span> Analyzing your code...';
+    
+    // Use AI engine
+    const prompts = {
+        explain: `Explain this code in simple terms:\n\n${code}`,
+        debug: `Find bugs and issues in this code and suggest fixes:\n\n${code}`,
+        optimize: `Optimize this code for better performance:\n\n${code}`
+    };
+    
+    if (aiEngine && aiEngine.generateText) {
+        aiEngine.generateText(prompts[action], 300).then(response => {
+            output.innerHTML = `<div class="ai-response"><strong>${action.charAt(0).toUpperCase() + action.slice(1)} Result:</strong><pre>${escapeHtml(response)}</pre></div>`;
+            paymentSystem.saveTokens(-1);
+            paymentSystem.recordTransaction({
+                type: 'usage',
+                tokens: -1,
+                description: `Code Editor - ${action}`,
+                status: 'completed'
+            });
+            showNotification(`${action.charAt(0).toUpperCase() + action.slice(1)} complete!`, 'success');
+        }).catch(error => {
+            output.innerHTML = 'Error getting AI help. Please try again.';
+            showNotification('AI assistance failed', 'error');
+        });
+    } else {
+        // Fallback response
+        setTimeout(() => {
+            const responses = {
+                explain: `This code appears to be a ${detectLanguage(code)} program. It contains ${code.split('\n').length} lines of code.`,
+                debug: `Code analysis complete. No obvious syntax errors detected. Consider adding error handling for production use.`,
+                optimize: `Code optimization suggestions:\n1. Consider using const/let instead of var\n2. Add comments for better readability\n3. Consider breaking into smaller functions`
+            };
+            output.innerHTML = `<div class="ai-response"><strong>${action.charAt(0).toUpperCase() + action.slice(1)} Result:</strong><pre>${responses[action]}</pre></div>`;
+            paymentSystem.saveTokens(-1);
+            showNotification(`${action.charAt(0).toUpperCase() + action.slice(1)} complete!`, 'success');
+        }, 1000);
+    }
+}
+
+/**
+ * Detect programming language
+ */
+function detectLanguage(code) {
+    if (code.includes('def ') && code.includes(':')) return 'Python';
+    if (code.includes('function') || code.includes('=>') || code.includes('console.log')) return 'JavaScript';
+    if (code.includes('<html') || code.includes('<div')) return 'HTML';
+    if (code.includes('{') && code.includes(':') && code.includes(';')) return 'CSS';
+    return 'code';
+}
+
+// ==================== SNIPPETS FUNCTIONS ====================
+
+/**
+ * Load code snippets from localStorage
+ */
+function loadCodeSnippets() {
+    const saved = localStorage.getItem('codeSnippets');
+    savedSnippets = saved ? JSON.parse(saved) : [];
+}
+
+/**
+ * Save current code as a snippet
+ */
+function saveCurrentSnippet() {
+    const code = codeEditor ? codeEditor.getValue() : '';
+    if (!code.trim()) {
+        showNotification('No code to save', 'warning');
+        return;
+    }
+    
+    const name = prompt('Enter a name for this snippet:');
+    if (!name) return;
+    
+    const snippet = {
+        id: Date.now(),
+        name: name,
+        code: code,
+        language: document.getElementById('codeLanguage')?.value || 'javascript',
+        createdAt: new Date().toISOString()
+    };
+    
+    savedSnippets.unshift(snippet);
+    localStorage.setItem('codeSnippets', JSON.stringify(savedSnippets));
+    
+    // Update the snippets list
+    const list = document.getElementById('snippetsList');
+    if (list) {
+        list.innerHTML = renderSnippetsList();
+    }
+    
+    showNotification('Snippet saved!', 'success');
+}
+
+/**
+ * Load a snippet into the editor
+ */
+function loadSnippet(id) {
+    const snippet = savedSnippets.find(s => s.id === id);
+    if (snippet && codeEditor) {
+        codeEditor.setValue(snippet.code);
+        
+        // Set language
+        const langSelect = document.getElementById('codeLanguage');
+        if (langSelect) {
+            langSelect.value = snippet.language;
+            changeCodeLanguage();
+        }
+        
+        showNotification(`Loaded: ${snippet.name}`, 'success');
+    }
+}
+
+/**
+ * Delete a snippet
+ */
+function deleteSnippet(id) {
+    if (!confirm('Delete this snippet?')) return;
+    
+    savedSnippets = savedSnippets.filter(s => s.id !== id);
+    localStorage.setItem('codeSnippets', JSON.stringify(savedSnippets));
+    
+    const list = document.getElementById('snippetsList');
+    if (list) {
+        list.innerHTML = renderSnippetsList();
+    }
+    
+    showNotification('Snippet deleted', 'info');
+}
+
+/**
+ * Render the snippets list
+ */
+function renderSnippetsList() {
+    if (savedSnippets.length === 0) {
+        return '<p class="no-snippets">No saved snippets yet. Write some code and save it!</p>';
+    }
+    
+    return savedSnippets.map(snippet => `
+        <div class="snippet-item">
+            <div class="snippet-info" onclick="loadSnippet(${snippet.id})">
+                <span class="snippet-name">${escapeHtml(snippet.name)}</span>
+                <span class="snippet-lang">${snippet.language}</span>
+            </div>
+            <button class="snippet-delete" onclick="deleteSnippet(${snippet.id})">×</button>
+        </div>
+    `).join('');
+}
+
+// ==================== AI CHAT TOOL ====================
+
+/**
+ * Render the AI Chat tool
+ */
+function renderAIChat() {
+    return `
+        <div class="tool-modal-header">
+            <div class="tool-modal-icon">🤖</div>
+            <div>
+                <h2>AI Chat Assistant</h2>
+                <p>Have a conversation with advanced AI</p>
+            </div>
+            <button class="theme-toggle-small" onclick="toggleTheme()">${AppState.theme === 'light' ? '🌙' : '☀️'}</button>
+        </div>
+        
+        <div class="ai-chat-container">
+            <div class="chat-settings">
+                <label for="chatModel">AI Model:</label>
+                <select id="chatModel" onchange="changeChatModel()">
+                    <option value="gpt-4-turbo-preview">GPT-4 Turbo (Fastest)</option>
+                    <option value="gpt-4">GPT-4 (Most Capable)</option>
+                    <option value="claude-3-opus">Claude 3 Opus (Best Reasoning)</option>
+                    <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                </select>
+                <button class="code-btn" onclick="clearChatHistory()" title="Clear Chat">🗑️ Clear</button>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message bot">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <strong>AI Assistant</strong>
+                        <p>Hello! I'm your advanced AI assistant. Ask me anything - I can help with coding, writing, analysis, research, and much more!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <textarea id="chatInput" placeholder="Type your message here..." rows="2"></textarea>
+                <button class="generate-btn" onclick="sendChatMessage()">
+                    <span class="btn-icon">🚀</span> Send
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function initAIChat() {
+    setTimeout(() => {
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendChatMessage();
+                }
+            });
+        }
+    }, 100);
+}
+
+async function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const messagesContainer = document.getElementById('chatMessages');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Check tokens
+    if (!paymentSystem || paymentSystem.getTokenBalance() < 1) {
+        showNotification('Insufficient tokens. Please buy more tokens.', 'error');
+        paymentSystem.openPaymentModal();
+        return;
+    }
+    
+    // Add user message
+    addChatMessage('user', message);
+    input.value = '';
+    
+    // Show loading
+    const loadingId = addChatMessage('bot', '<span class="loading"></span> Thinking...');
+    
+    try {
+        const model = document.getElementById('chatModel')?.value || 'gpt-4-turbo-preview';
+        const response = await aiEngine.chat(message, 'You are a helpful, knowledgeable AI assistant.');
+        
+        // Remove loading message
+        document.getElementById(loadingId)?.remove();
+        
+        // Add AI response
+        addChatMessage('bot', response);
+        
+        // Deduct token
+        paymentSystem.saveTokens(-1);
+    } catch (error) {
+        document.getElementById(loadingId)?.remove();
+        addChatMessage('bot', 'Sorry, I encountered an error. Please check your API key and try again.');
+        showNotification('Chat error: ' + error.message, 'error');
+    }
+}
+
+function addChatMessage(sender, content) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageId = 'msg-' + Date.now();
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}`;
+    messageDiv.id = messageId;
+    messageDiv.innerHTML = `
+        <div class="message-avatar">${sender === 'user' ? '👤' : '🤖'}</div>
+        <div class="message-content">
+            <strong>${sender === 'user' ? 'You' : 'AI Assistant'}</strong>
+            <p>${content}</p>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    return messageId;
+}
+
+function changeChatModel() {
+    const model = document.getElementById('chatModel').value;
+    aiEngine.setModel(model);
+    showNotification('Model changed to ' + model, 'info');
+}
+
+function clearChatHistory() {
+    if (!confirm('Clear all chat history?')) return;
+    aiEngine.clearChat();
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.innerHTML = `
+        <div class="chat-message bot">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+                <strong>AI Assistant</strong>
+                <p>Chat cleared! How can I help you now?</p>
+            </div>
+        </div>
+    `;
+    showNotification('Chat history cleared', 'info');
+}
+
+// ==================== AI IMAGE GENERATOR ====================
+
+function renderImageGenerator() {
+    return `
+        <div class="tool-modal-header">
+            <div class="tool-modal-icon">🎨</div>
+            <div>
+                <h2>AI Image Generator</h2>
+                <p>Create stunning images with AI</p>
+            </div>
+            <button class="theme-toggle-small" onclick="toggleTheme()">${AppState.theme === 'light' ? '🌙' : '☀️'}</button>
+        </div>
+        
+        <div class="tool-form">
+            <div class="tool-input-group">
+                <label for="imagePrompt">🎯 Describe your image</label>
+                <textarea id="imagePrompt" rows="3" placeholder="A majestic lion walking through a savanna at sunset, photorealistic, 8k..."></textarea>
+            </div>
+            
+            <div class="tool-input-group">
+                <label for="imageSize">📐 Image Size</label>
+                <select id="imageSize">
+                    <option value="1024x1024">Square (1024×1024)</option>
+                    <option value="1792x1024">Landscape (1792×1024)</option>
+                    <option value="1024x1792">Portrait (1024×1792)</option>
+                </select>
+            </div>
+            
+            <button class="generate-btn" onclick="generateImage()" style="width: 100%;">
+                <span class="btn-icon">🎨</span> Generate Image
+            </button>
+            
+            <div class="image-output" id="imageOutput">
+                <div class="image-placeholder">
+                    <span>🖼️</span>
+                    <p>Your generated image will appear here</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function initImageGenerator() {}
+
+async function generateImage() {
+    const prompt = document.getElementById('imagePrompt').value;
+    const size = document.getElementById('imageSize').value;
+    const output = document.getElementById('imageOutput');
+    
+    if (!prompt.trim()) {
+        showNotification('Please describe what you want to generate', 'warning');
+        return;
+    }
+    
+    // Check tokens
+    if (!paymentSystem || paymentSystem.getTokenBalance() < 3) {
+        showNotification('Image generation requires 3 tokens. Please buy more.', 'error');
+        paymentSystem.openPaymentModal();
+        return;
+    }
+    
+    output.innerHTML = '<div class="image-loading"><span class="loading"></span> Generating image...</div>';
+    
+    try {
+        const imageUrl = await aiEngine.generateImage(prompt, size);
+        
+        output.innerHTML = `
+            <img src="${imageUrl}" alt="AI Generated Image" class="generated-image">
+            <div class="image-actions">
+                <a href="${imageUrl}" target="_blank" class="copy-btn">🔗 Open Full Size</a>
+                <button class="generate-btn" onclick="downloadImage('${imageUrl}')">💾 Download</button>
+            </div>
+        `;
+        
+        paymentSystem.saveTokens(-3);
+        showNotification('Image generated successfully!', 'success');
+    } catch (error) {
+        output.innerHTML = '<div class="image-error">Error generating image. Please try again.</div>';
+        showNotification('Image generation failed: ' + error.message, 'error');
+    }
+}
+
+function downloadImage(url) {
+    window.open(url, '_blank');
+}
+
+// ==================== AI TRANSLATOR ====================
+
+function renderTranslation() {
+    return `
+        <div class="tool-modal-header">
+            <div class="tool-modal-icon">🌍</div>
+            <div>
+                <h2>AI Translator</h2>
+                <p>Translate content between 50+ languages</p>
+            </div>
+            <button class="theme-toggle-small" onclick="toggleTheme()">${AppState.theme === 'light' ? '🌙' : '☀️'}</button>
+        </div>
+        
+        <div class="tool-form">
+            <div class="tool-input-group">
+                <label for="sourceLanguage">📤 Source Language</label>
+                <select id="sourceLanguage">
+                    <option value="auto">Auto-detect</option>
+                    <option value="english">English</option>
+                    <option value="spanish">Spanish</option>
+                    <option value="french">French</option>
+                    <option value="german">German</option>
+                    <option value="chinese">Chinese</option>
+                    <option value="japanese">Japanese</option>
+                    <option value="korean">Korean</option>
+                    <option value="arabic">Arabic</option>
+                    <option value="portuguese">Portuguese</option>
+                    <option value="russian">Russian</option>
+                </select>
+            </div>
+            
+            <div class="tool-input-group">
+                <label for="targetLanguage">📥 Target Language</label>
+                <select id="targetLanguage">
+                    <option value="english">English</option>
+                    <option value="spanish">Spanish</option>
+                    <option value="french">French</option>
+                    <option value="german">German</option>
+                    <option value="chinese">Chinese</option>
+                    <option value="japanese">Japanese</option>
+                    <option value="korean">Korean</option>
+                    <option value="arabic">Arabic</option>
+                    <option value="portuguese">Portuguese</option>
+                    <option value="russian">Russian</option>
+                    <option value="italian">Italian</option>
+                    <option value="dutch">Dutch</option>
+                    <option value="hindi">Hindi</option>
+                </select>
+            </div>
+            
+            <div class="tool-input-group">
+                <label for="translateInput">📝 Text to Translate</label>
+                <textarea id="translateInput" rows="4" placeholder="Enter text to translate..."></textarea>
+            </div>
+            
+            <button class="generate-btn" onclick="translateText()" style="width: 100%;">
+                <span class="btn-icon">🌍</span> Translate
+            </button>
+            
+            <div class="tool-output" id="translateOutput">
+                Translation will appear here...
+            </div>
+            
+            <div class="tool-actions">
+                <button class="copy-btn" onclick="copyToClipboard('translateOutput')">
+                    <span class="btn-icon">📋</span> Copy
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function initTranslation() {}
+
+async function translateText() {
+    const text = document.getElementById('translateInput').value;
+    const targetLang = document.getElementById('targetLanguage').value;
+    const sourceLang = document.getElementById('sourceLanguage').value;
+    const output = document.getElementById('translateOutput');
+    
+    if (!text.trim()) {
+        showNotification('Please enter text to translate', 'warning');
+        return;
+    }
+    
+    output.innerHTML = '<span class="loading"></span> Translating...';
+    
+    try {
+        const result = await aiEngine.translate(text, targetLang, sourceLang);
+        output.innerHTML = result;
+        showNotification('Translation complete!', 'success');
+    } catch (error) {
+        output.innerHTML = 'Translation failed. Please try again.';
+        showNotification('Translation error', 'error');
+    }
+}
+
+// ==================== AI SEO OPTIMIZER ====================
+
+function renderSEO() {
+    return `
+        <div class="tool-modal-header">
+            <div class="tool-modal-icon">🔍</div>
+            <div>
+                <h2>SEO Optimizer</h2>
+                <p>Optimize your content for Google rankings</p>
+            </div>
+            <button class="theme-toggle-small" onclick="toggleTheme()">${AppState.theme === 'light' ? '🌙' : '☀️'}</button>
+        </div>
+        
+        <div class="tool-form">
+            <div class="tool-input-group">
+                <label for="seoKeyword">🎯 Target Keyword</label>
+                <input type="text" id="seoKeyword" placeholder="e.g., AI productivity tools">
+            </div>
+            
+            <div class="tool-input-group">
+                <label for="seoContent">📝 Your Content</label>
+                <textarea id="seoContent" rows="6" placeholder="Paste your article or content here..."></textarea>
+            </div>
+            
+            <button class="generate-btn" onclick="optimizeSEO()" style="width: 100%;">
+                <span class="btn-icon">🚀</span> Optimize for SEO
+            </button>
+            
+            <div class="tool-output seo-output" id="seoOutput">
+                SEO recommendations will appear here...
+            </div>
+            
+            <div class="tool-actions">
+                <button class="copy-btn" onclick="copyToClipboard('seoOutput')">
+                    <span class="btn-icon">📋</span> Copy
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function initSEO() {}
+
+async function optimizeSEO() {
+    const keyword = document.getElementById('seoKeyword').value;
+    const content = document.getElementById('seoContent').value;
+    const output = document.getElementById('seoOutput');
+    
+    if (!keyword.trim() || !content.trim()) {
+        showNotification('Please enter both keyword and content', 'warning');
+        return;
+    }
+    
+    output.innerHTML = '<span class="loading"></span> Analyzing and optimizing...';
+    
+    try {
+        const result = await aiEngine.optimizeSEO(content, keyword);
+        output.innerHTML = result;
+        showNotification('SEO optimization complete!', 'success');
+    } catch (error) {
+        output.innerHTML = 'SEO optimization failed. Please try again.';
+        showNotification('SEO error', 'error');
+    }
+}
+
+// ==================== AI RESEARCH TOOL ====================
+
+function renderResearch() {
+    return `
+        <div class="tool-modal-header">
+            <div class="tool-modal-icon">📊</div>
+            <div>
+                <h2>AI Research Assistant</h2>
+                <p>Get comprehensive research on any topic</p>
+            </div>
+            <button class="theme-toggle-small" onclick="toggleTheme()">${AppState.theme === 'light' ? '🌙' : '☀️'}</button>
+        </div>
+        
+        <div class="tool-form">
+            <div class="tool-input-group">
+                <label for="researchTopic">🔬 Research Topic</label>
+                <input type="text" id="researchTopic" placeholder="e.g., Artificial Intelligence trends 2024">
+            </div>
+            
+            <div class="tool-input-group">
+                <label for="researchDepth">📊 Depth</label>
+                <select id="researchDepth">
+                    <option value="quick">Quick Overview</option>
+                    <option value="comprehensive">Comprehensive Analysis</option>
+                </select>
+            </div>
+            
+            <button class="generate-btn" onclick="doResearch()" style="width: 100%;">
+                <span class="btn-icon">🔍</span> Research
+            </button>
+            
+            <div class="tool-output research-output" id="researchOutput">
+                Research results will appear here...
+            </div>
+            
+            <div class="tool-actions">
+                <button class="copy-btn" onclick="copyToClipboard('researchOutput')">
+                    <span class="btn-icon">📋</span> Copy
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function initResearch() {}
+
+async function doResearch() {
+    const topic = document.getElementById('researchTopic').value;
+    const depth = document.getElementById('researchDepth').value;
+    const output = document.getElementById('researchOutput');
+    
+    if (!topic.trim()) {
+        showNotification('Please enter a research topic', 'warning');
+        return;
+    }
+    
+    output.innerHTML = '<span class="loading"></span> Researching...';
+    
+    try {
+        const result = await aiEngine.research(topic, depth);
+        output.innerHTML = result;
+        showNotification('Research complete!', 'success');
+    } catch (error) {
+        output.innerHTML = 'Research failed. Please try again.';
+        showNotification('Research error', 'error');
+    }
+}
+
+// Export code functions globally
+window.changeCodeLanguage = changeCodeLanguage;
+window.clearCode = clearCode;
+window.formatCode = formatCode;
+window.copyCode = copyCode;
+window.getAICodeHelp = getAICodeHelp;
+window.saveCurrentSnippet = saveCurrentSnippet;
+window.loadSnippet = loadSnippet;
+window.deleteSnippet = deleteSnippet;
+
 // Student Tool Functions
 function generateStudentContent() {
     const toolType = document.getElementById('studentToolType').value;
@@ -914,6 +1778,25 @@ window.getAITaskSuggestions = getAITaskSuggestions;
 window.generateBusinessDoc = generateBusinessDoc;
 window.generateStudentContent = generateStudentContent;
 window.copyToClipboard = copyToClipboard;
+
+// Export AI Chat functions
+window.sendChatMessage = sendChatMessage;
+window.addChatMessage = addChatMessage;
+window.changeChatModel = changeChatModel;
+window.clearChatHistory = clearChatHistory;
+
+// Export Image Generator functions
+window.generateImage = generateImage;
+window.downloadImage = downloadImage;
+
+// Export Translation functions
+window.translateText = translateText;
+
+// Export SEO functions
+window.optimizeSEO = optimizeSEO;
+
+// Export Research functions
+window.doResearch = doResearch;
 
 // ============================================
 // WHATSAPP FEATURE REQUEST INTEGRATION

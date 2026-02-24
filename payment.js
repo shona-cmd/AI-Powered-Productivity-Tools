@@ -33,6 +33,12 @@ class PaymentSystem {
     }
 
     saveTokens(amount) {
+        // Prevent negative balance
+        if (this.userTokens + amount < 0) {
+            console.error('Insufficient tokens');
+            return this.userTokens;
+        }
+        
         this.userTokens += amount;
         localStorage.setItem('aiProductivityTokens', this.userTokens.toString());
         this.updateTokenDisplay();

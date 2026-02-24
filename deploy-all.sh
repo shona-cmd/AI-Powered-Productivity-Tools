@@ -1,4 +1,4 @@
-#!/bin/bash
+prototype#!/bin/bash
 
 # Multi-Platform Deployment Script for AI Productivity Tools
 # This script deploys to multiple free hosting platforms

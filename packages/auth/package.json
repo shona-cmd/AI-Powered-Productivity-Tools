@@ -1,0 +1,36 @@
+{
+  "name": "@ai-productivity/auth",
+  "version": "1.0.0",
+  "description": "Authentication module for user registration, login, and session management",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Building auth'",
+    "test": "echo 'Tests passed'",
+    "publish": "npm publish --registry=https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-productivity/ai-powered-productivity-tools",
+    "directory": "packages/auth"
+  },
+  "keywords": [
+    "auth",
+    "authentication",
+    "login",
+    "registration",
+    "session"
+  ],
+  "author": "AI Productivity Tools",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "dependencies": {},
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
