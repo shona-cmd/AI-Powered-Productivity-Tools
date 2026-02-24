@@ -1,0 +1,72 @@
+# GitHub App Configuration for AI Productivity Tools Bundle
+# This file defines the GitHub App for the Marketplace listing
+
+app_type: educator
+
+name: AI Productivity Tools Bundle
+
+description: >-
+  A complete AI productivity tools bundle to help students, professionals, 
+  and businesses work smarter with AI-powered writing, task management, 
+  business tools, and study assistance.
+
+external_url: https://github.com/shona-cmd/AI-Powered-Productivity-Tools
+
+html_url: https://github.com/apps/ai-productivity-tools
+
+icon: assets/icon.png
+
+# Privacy policy URL (you would need to host this)
+privacy_policy_url: https://github.com/shona-cmd/AI-Powered-Productivity-Tools/blob/main/PRIVACY.md
+
+# Support URL
+support_url: https://github.com/shona-cmd/AI-Powered-Productivity-Tools/issues
+
+# Categories for Marketplace
+categories:
+  - education
+  - productivity
+  - developer-tools
+  - ai-tools
+
+# Marketing screenshots
+screenshots:
+  - name: AI Writing Assistant
+    URL: https://raw.githubusercontent.com/shona-cmd/AI-Powered-Productivity-Tools/main/screenshots/writing-assistant.png
+  - name: Task Manager
+    URL: https://raw.githubusercontent.com/shona-cmd/AI-Powered-Productivity-Tools/main/screenshots/task-manager.png
+  - name: Business Toolkit
+    URL: https://raw.githubusercontent.com/shona-cmd/AI-Powered-Productivity-Tools/main/screenshots/business-toolkit.png
+  - name: Student Tools
+    URL: https://raw.githubusercontent.com/shona-cmd/AI-Powered-Productivity-Tools/main/screenshots/student-tools.png
+
+# Pricing plans (free for this bundle)
+pricingPlans:
+  - name: Free
+    price: 0
+    description: >-
+      Get started with basic AI writing assistance and task management features.
+  - name: Pro Bundle
+    price: 19
+    description: >-
+      Full access to all AI tools including Business Toolkit, Student Tools, 
+      and advanced features.
+
+# Required permissions
+permissions:
+  contents: read
+  issues: read
+  pull_requests: read
+
+# Required webhook events
+events:
+  - issues
+  - pull_request
+
+version: 1.0.0
+
+# Marketplace listing configuration
+marketplace:
+  listing_visible: true
+  primary_category: education
+  secondary_category: productivity
