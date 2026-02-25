@@ -17,7 +17,7 @@ This guide will help you list the AI Productivity Tools Bundle on GitHub Marketp
    - **Description**: A complete AI productivity tools bundle to help students, professionals, and businesses work smarter with AI-powered writing, task management, business tools, and study assistance.
    - **Homepage URL**: https://github.com/shona-cmd/AI-Powered-Productivity-Tools
    - **Authorization callback URL**: https://github.com/shona-cmd/AI-Powered-Productivity-Tools
-   - **Webhook URL**: https://your-app-url.com/api/webhook (see below)
+   - **Webhook URL**: https://ai-powered-productivity-tools-6tirxqs5s-naashons-projects.vercel.app/api/webhook
    - **Webhook secret**: Create a secret for signature verification
 
 3. Click "Create GitHub App"
@@ -48,9 +48,9 @@ This guide will help you list the AI Productivity Tools Bundle on GitHub Marketp
 
 ## Webhook URL Setup
 
-We've created `api/webhook.js` to handle GitHub events. Once deployed, your webhook URL will be:
+We've created `api/webhook.js` to handle GitHub events. Your deployed webhook URL is:
 
-- **Vercel**: `https://your-app-name.vercel.app/api/webhook`
+- **Vercel**: `https://ai-powered-productivity-tools-6tirxqs5s-naashons-projects.vercel.app/api/webhook`
 - **Netlify**: `https://your-site-name.netlify.app/api/webhook`
 
 ### Events Handled:

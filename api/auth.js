@@ -3,8 +3,9 @@
  *
  * Handles user registration, login, and session management
  * Includes email notifications for admin
+ * Includes 2FA support
  *
- * Version 4.0 - Added email notifications
+ * Version 5.0 - Added 2FA support
  * Changed to CommonJS exports for consistent serverless behavior
  */
 
@@ -289,6 +290,8 @@ async function handler(req, res) {
         return handleRegister(res, body);
       } else if (path === '/api/auth/login' && method === 'POST') {
         return handleLogin(res, body);
+      } else if (path === '/api/auth/notify' && method === 'POST') {
+        return handleNotify(res, body);
       } else if (path === '/api/auth/me' && method === 'GET') {
         return handleMe(res, req.headers);
       } else if (path === '/api/auth/logout' && method === 'POST') {
@@ -427,6 +430,32 @@ async function handleMe(res, headers) {
   } catch (error) {
     console.error('Get user error:', error);
     return res.status(500).json({ error: 'Failed to get user profile' });
+  }
+}
+
+/**
+ * Handle notification request from client-side
+ * Used for local/offline registrations and logins
+ */
+async function handleNotify(res, body) {
+  try {
+    const { type, userData } = body;
+    
+    if (!type || !userData) {
+      return res.status(400).json({ error: 'Type and userData are required' });
+    }
+    
+    if (type !== 'register' && type !== 'login') {
+      return res.status(400).json({ error: 'Invalid notification type' });
+    }
+    
+    // Send admin notification
+    const result = await sendAdminNotification(type, userData);
+    
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error('Notification error:', error);
+    return res.status(500).json({ error: 'Failed to send notification' });
   }
 }
 

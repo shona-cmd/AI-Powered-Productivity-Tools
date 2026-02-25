@@ -300,20 +300,156 @@ class PaymentSystem {
             selected.querySelector('.package-tokens').textContent === key.split('_')[0]
         );
 
+        // Check if 2FA is enabled and required
+        if (twoFactorAuth && twoFactorAuth.is2FAEnabled()) {
+            // Show 2FA verification modal
+            this.show2FAVerificationForPayment(packageId, phone);
+            return;
+        }
+
+        // Proceed without 2FA if not enabled
+        await this.processPayment(packageId);
+    }
+
+    /**
+     * Show 2FA verification for payment
+     */
+    show2FAVerificationForPayment(packageId, phone) {
+        // Create a 2FA verification modal for payment
+        const existingModal = document.getElementById('payment2FAModal');
+        if (existingModal) existingModal.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'payment2FAModal';
+        modal.className = 'modal active';
+        
+        modal.innerHTML = `
+            <div class="modal-content auth-modal-content" style="max-width: 400px;">
+                <span class="close-btn" onclick="paymentSystem.closePayment2FA()">&times;</span>
+                
+                <div class="auth-header" style="text-align: center;">
+                    <div class="auth-icon" style="font-size: 3rem;">🔐</div>
+                    <h2>2FA Verification Required</h2>
+                    <p style="color: #6b7280;">Enter a code from your authenticator app to confirm this purchase</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Authentication Code</label>
+                    <input type="text" id="payment2FACode" placeholder="Enter 6-digit code" maxlength="6" style="text-align: center; letter-spacing: 4px; font-size: 1.2rem;">
+                </div>
+                
+                <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 1rem;">
+                    Or use a backup code (8 characters)
+                </p>
+                
+                <input type="hidden" id="payment2FAPackageId" value="${packageId}">
+                <input type="hidden" id="payment2FAPhone" value="${phone}">
+                
+                <button class="btn btn-primary btn-block" onclick="paymentSystem.verify2FAAndCompletePayment()">
+                    Verify & Complete Purchase
+                </button>
+                
+                <button class="btn btn-outline btn-block" style="margin-top: 0.75rem;" onclick="paymentSystem.skip2FAForPayment()">
+                    Skip 2FA (Not Recommended)
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * Verify 2FA and complete payment
+     */
+    async verify2FAAndCompletePayment() {
+        const code = document.getElementById('payment2FACode').value.trim();
+        const packageId = document.getElementById('payment2FAPackageId').value;
+        const phone = document.getElementById('payment2FAPhone').value;
+        
+        if (!code) {
+            this.showPayment2FAError('Please enter a verification code');
+            return;
+        }
+        
+        // Verify 2FA code
+        const result = await twoFactorAuth.verify2FAForAction('purchase', code);
+        
+        if (result.success && result.verified) {
+            // Close 2FA modal and process payment
+            this.closePayment2FA();
+            await this.processPayment(packageId);
+        } else {
+            this.showPayment2FAError('Invalid verification code. Please try again.');
+        }
+    }
+
+    /**
+     * Skip 2FA for payment (not recommended)
+     */
+    async skip2FAForPayment() {
+        const packageId = document.getElementById('payment2FAPackageId').value;
+        
+        this.closePayment2FA();
+        
+        // Show warning notification
+        if (authSystem) {
+            authSystem.showNotification('⚠️ Purchase completed without 2FA verification. Consider enabling 2FA for security.', 'warning');
+        }
+        
+        await this.processPayment(packageId);
+    }
+
+    /**
+     * Show error in 2FA modal
+     */
+    showPayment2FAError(message) {
+        const modal = document.getElementById('payment2FAModal');
+        if (!modal) return;
+        
+        let errorDiv = modal.querySelector('.2fa-error');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.className = '2fa-error';
+            errorDiv.style.cssText = 'color: #ef4444; background: #fef2f2; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;';
+            
+            const btn = modal.querySelector('.btn-primary');
+            btn.parentNode.insertBefore(errorDiv, btn);
+        }
+        
+        errorDiv.textContent = message;
+    }
+
+    /**
+     * Close payment 2FA modal
+     */
+    closePayment2FA() {
+        const modal = document.getElementById('payment2FAModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            setTimeout(() => modal.remove(), 300);
+        }
+    }
+
+    /**
+     * Process the payment (core logic)
+     */
+    async processPayment(packageId) {
+        const pkg = this.prices[packageId];
+        const tokensAdded = pkg.tokens;
+
         // Show loading state
         const btn = document.getElementById('verifyPaymentBtn');
         const btnText = btn.querySelector('.btn-text');
         const btnLoading = btn.querySelector('.btn-loading');
-
+        
         btnText.style.display = 'none';
         btnLoading.style.display = 'inline';
         btn.disabled = true;
 
         // Simulate payment verification (Offline mode)
         setTimeout(() => {
-            const pkg = this.prices[packageId];
-            const tokensAdded = pkg.tokens;
-
             // Add tokens
             this.saveTokens(tokensAdded);
 

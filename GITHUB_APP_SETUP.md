@@ -16,9 +16,9 @@ If you want to create a new GitHub App for the Marketplace:
 1. Go to: https://github.com/settings/apps/new
 2. Fill in the details:
    - **App Name**: AI Productivity Tools
-   - **Homepage URL**: https://github.com/shona-cmd/AI-Powered-Productivity-Tools
-   - **Callback URL**: https://github.com/shona-cmd/AI-Powered-Productivity-Tools
-   - **Webhook URL**: (leave empty or add your deployment URL)
+   - **Homepage URL**: https://github.com/shonahttps://github.com/shona-cmd/AI-Powered-Productivity-Tools
+   - **Webhook URL**: (leave empty or add your deployment URL)-cmd/AI-Powered-Productivity-Tools
+   - **Callback URL**: 
 3. Set permissions:
    - Contents: Read-only
    - Issues: Read-only
@@ -49,6 +49,7 @@ To list your app on GitHub Marketplace:
 
 ## Next Steps
 
-1. Deploy the application to get a real webhook URL
-2. Update the GitHub App with the deployment URL
-3. List on GitHub Marketplace
+1. ✅ Application deployed to: https://ai-powered-productivity-tools-6tirxqs5s-naashons-projects.vercel.app
+2. ✅ Webhook URL ready: https://ai-powered-productivity-tools-6tirxqs5s-naashons-projects.vercel.app/api/webhook
+3. Create GitHub App at https://github.com/settings/apps/new
+4. List on GitHub Marketplace

@@ -1479,25 +1479,731 @@ footer {
     background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* ============================================
+   4K & LARGE SCREEN SUPPORT (2560px+)
+   ============================================ */
+@media (min-width: 2560px) {
+    nav {
+        max-width: 1600px;
+        padding: 1rem 4rem;
+    }
+    
+    .hero {
+        padding: 10rem 4rem 6rem;
+    }
+    
+    .hero h1 {
+        font-size: 4.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.5rem;
+        max-width: 800px;
+    }
+    
+    section {
+        padding: 7rem 4rem;
+    }
+    
+    .section-title {
+        font-size: 3rem;
+    }
+    
+    .tools-grid {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 1600px;
+    }
+    
+    .tool-card {
+        padding: 2.5rem;
+    }
+    
+    .pricing-grid {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 1400px;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 1500px;
+    }
+    
+    .testimonials-grid {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 1600px;
+    }
+    
+    .footer-grid {
+        max-width: 1500px;
+    }
+    
+    .modal-content {
+        max-width: 1000px;
+        padding: 3rem;
+    }
+    
+    .hero-stats {
+        gap: 5rem;
+    }
+    
+    .stat-value {
+        font-size: 3.5rem;
+    }
+}
+
+/* ============================================
+   DARK MODE SUPPORT (prefers-color-scheme)
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --text-light: #9ca3af;
+        --bg-primary: #111827;
+        --bg-secondary: #1f2937;
+        --bg-tertiary: #374151;
+        --border-color: #4b5563;
+    }
+    
+    body {
+        background-color: var(--bg-primary);
+    }
+    
+    header {
+        background: rgba(17, 24, 39, 0.98);
+    }
+    
+    .nav-links a {
+        color: var(--text-secondary);
+    }
+    
+    .hero {
+        background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #111827 100%);
+    }
+    
+    .hero-subtitle {
+        color: var(--text-secondary);
+    }
+    
+    .tools-section {
+        background: var(--bg-secondary);
+    }
+    
+    .tool-card {
+        background: var(--bg-primary);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+    
+    .tool-card:hover {
+        box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.4);
+    }
+    
+    .feature-card {
+        background: var(--bg-primary);
+    }
+    
+    .feature-card:hover {
+        background: var(--bg-secondary);
+    }
+    
+    .pricing-section {
+        background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    }
+    
+    .pricing-card {
+        background: var(--bg-primary);
+    }
+    
+    .testimonial-card {
+        background: var(--bg-secondary);
+    }
+    
+    .footer {
+        background: #0f172a;
+    }
+    
+    .modal-content {
+        background: var(--bg-primary);
+    }
+    
+    .close-btn {
+        background: var(--bg-secondary);
+    }
+    
+    .tool-input-group input,
+    .tool-input-group textarea,
+    .tool-input-group select {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+    
+    .code-editor-wrapper {
+        background: #1e1e1e;
+    }
+    
+    .code-editor-wrapper textarea {
+        background: #1e1e1e;
+        color: #d4d4d4;
+    }
+    
+    .chat-messages {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    }
+    
+    .message-content {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+    
+    .tool-output {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    }
+    
+    .snippets-section {
+        background: var(--bg-secondary);
+    }
+    
+    .snippet-item {
+        background: var(--bg-primary);
+        border-color: var(--border-color);
+    }
+    
+    .ai-code-output {
+        background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+    }
+    
+    .image-output {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    }
+    
+    /* Dark mode specific form elements */
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus,
+    .tool-input-group input:focus,
+    .tool-input-group textarea:focus,
+    .tool-input-group select:focus {
+        border-color: var(--primary-light);
+    }
+    
+    /* Dark mode code toolbar */
     .code-toolbar {
-        flex-direction: column;
-        align-items: stretch;
+        background: var(--bg-secondary);
     }
     
-    .toolbar-left,
-    .toolbar-right {
-        justify-content: center;
+    .code-toolbar select {
+        background: var(--bg-primary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
     }
     
-    .code-actions {
-        flex-direction: column;
+    /* Dark mode chat settings */
+    .chat-settings {
+        background: var(--bg-secondary);
     }
     
-    .code-actions .generate-btn,
-    .code-actions .copy-btn {
+    .chat-settings label {
+        color: var(--text-primary);
+    }
+    
+    .chat-settings select {
+        background: var(--bg-primary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+    
+    /* Dark mode template buttons */
+    .template-btn {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+    
+    /* Dark mode auth modal */
+    .auth-modal-content {
+        background: var(--bg-primary);
+    }
+    
+    /* Dark mode welcome banner */
+    .welcome-banner {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    }
+    
+    .new-user-offer-banner {
+        background: linear-gradient(135deg, #451a03 0%, #78350f 100%);
+    }
+    
+    /* Dark mode input placeholders */
+    .form-group input::placeholder,
+    .tool-input-group input::placeholder,
+    .tool-input-group textarea::placeholder {
+        color: var(--text-light);
+    }
+    
+    /* Dark mode notification */
+    .notification {
+        color: white;
+    }
+}
+
+/* ============================================
+   HIGH DPI / RETINA DISPLAY SUPPORT
+   ============================================ */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .logo-icon,
+    .tool-icon,
+    .feature-icon,
+    .message-avatar,
+    .author-avatar {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .hero h1,
+    .section-title,
+    .stat-value,
+    .price {
+        -webkit-font-smoothing: antialiased;
+    }
+}
+
+/* ============================================
+   ENHANCED TOUCH TARGETS (Mobile)
+   ============================================ */
+@media (max-width: 768px) {
+    /* Ensure minimum 48px touch targets */
+    .btn,
+    .tool-btn,
+    .pricing-btn,
+    .generate-btn,
+    .copy-btn,
+    .nav-links a,
+    .template-btn,
+    .package-card,
+    .snippet-item,
+    .task-item,
+    .code-btn,
+    .floating-whatsapp,
+    .theme-toggle-small {
+        min-height: 48px;
+        min-width: 48px;
+    }
+    
+    /* Larger checkboxes for touch */
+    input[type="checkbox"],
+    input[type="radio"] {
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+    }
+    
+    /* Larger select dropdowns */
+    select {
+        min-height: 48px;
+        padding: 12px 40px 12px 16px;
+    }
+    
+    /* Better spacing for touch */
+    .tool-card,
+    .feature-card,
+    .pricing-card,
+    .testimonial-card {
+        margin-bottom: 1rem;
+    }
+    
+    /* Larger modal close button */
+    .close-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 2rem;
+    }
+    
+    /* Mobile menu button */
+    .mobile-menu-btn {
+        width: 48px;
+        height: 48px;
+        padding: 10px;
+    }
+    
+    /* Payment modal adjustments */
+    .package-card {
+        padding: 1.25rem;
+        min-height: 100px;
+    }
+    
+    /* Chat input */
+    .chat-input-container textarea {
+        min-height: 60px;
+        padding: 14px;
+    }
+    
+    /* Tool form inputs */
+    .tool-input-group input,
+    .tool-input-group textarea {
+        padding: 14px 16px;
+    }
+    
+    /* Form groups */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 14px 16px;
+        min-height: 48px;
+    }
+    
+    /* Code editor toolbar */
+    .code-toolbar {
+        padding: 1rem;
+    }
+    
+    .code-toolbar select {
+        padding: 12px 40px 12px 12px;
+        min-height: 44px;
+    }
+    
+    /* Better scrollbars for touch */
+    .chat-messages,
+    .snippets-list,
+    .task-list,
+    .research-output,
+    .seo-output {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* ============================================
+   MOBILE LANDSCAPE ORIENTATION
+   ============================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        min-height: auto;
+        padding: 5rem 2rem 3rem;
+    }
+    
+    .hero h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-cta {
+        flex-direction: row;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-cta .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .hero-stats {
+        flex-direction: row;
+        gap: 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .modal-content.tool-modal-content {
+        padding: 1rem;
+    }
+    
+    section {
+        padding: 2rem 1rem;
+    }
+    
+    .tools-grid,
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .tool-card,
+    .feature-card {
+        padding: 1rem;
+    }
+    
+    /* Chat in landscape mobile */
+    .ai-chat-container {
+        height: 60vh;
+    }
+    
+    .chat-messages {
+        max-height: 40vh;
+    }
+    
+    /* Code editor in landscape mobile */
+    .code-editor-wrapper .CodeMirror {
+        height: 150px;
+    }
+}
+
+/* ============================================
+   IMPROVED PRINT STYLES
+   ============================================ */
+@media print {
+    /* Hide non-essential elements */
+    .floating-whatsapp,
+    .mobile-menu-btn,
+    .nav-auth-buttons,
+    .btn,
+    .cta-section,
+    .feature-request,
+    .welcome-banner,
+    .new-user-offer-banner,
+    .hero-cta,
+    .hero-badge,
+    .hero-bg,
+    .tool-modal-header .theme-toggle-small,
+    .tool-actions,
+    .chat-input-container,
+    .code-actions,
+    .snippets-section,
+    .ai-code-output,
+    .tool-output,
+    #tokenDisplay,
+    #userDisplay,
+    .notification,
+    .modal .close-btn,
+    header,
+    footer {
+        display: none !important;
+    }
+    
+    /* Reset body */
+    body {
+        background: white !important;
+        color: black !important;
+        font-size: 12pt;
+        line-height: 1.5;
+    }
+    
+    /* Show modal content */
+    .modal {
+        display: block !important;
+        position: static !important;
+        background: white !important;
+    }
+    
+    .modal-content {
+        box-shadow: none !important;
+        border: 1px solid #ccc;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 1cm !important;
+        page-break-inside: avoid;
+    }
+    
+    /* Header for print */
+    header {
+        display: block !important;
+        position: static !important;
+        border-bottom: 2px solid #333;
+        margin-bottom: 1cm;
+    }
+    
+    .logo {
+        color: black !important;
+        -webkit-text-fill-color: black !important;
+    }
+    
+    /* Sections */
+    section {
+        page-break-inside: avoid;
+        padding: 1cm 0;
+    }
+    
+    .hero {
+        padding: 0 0 1cm 0;
+        min-height: auto;
+        background: none !important;
+    }
+    
+    .hero h1 {
+        font-size: 24pt;
+        color: black !important;
+        -webkit-text-fill-color: black !important;
+        background: none !important;
+    }
+    
+    /* Cards */
+    .tool-card,
+    .feature-card,
+    .pricing-card,
+    .testimonial-card {
+        page-break-inside: avoid;
+        border: 1px solid #ddd;
+        box-shadow: none !important;
+        margin-bottom: 0.5cm;
+    }
+    
+    /* Links */
+    a {
+        color: black !important;
+        text-decoration: underline;
+    }
+    
+    a[href^="http"]:after {
+        content: " (" attr(href) ")";
+        font-size: 10pt;
+    }
+    
+    /* Code blocks */
+    pre, code {
+        border: 1px solid #ddd;
+        background: #f5f5f5 !important;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
+    /* Images */
+    img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+    }
+    
+    /* Page margins */
+    @page {
+        margin: 2cm;
+    }
+    
+    /* Ensure page breaks */
+    h1, h2, h3 {
+        page-break-after: avoid;
+    }
+    
+    /* Tables */
+    table {
+        border-collapse: collapse;
         width: 100%;
+    }
+    
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    
+    /* Form inputs - show values */
+    input, textarea, select {
+        border: 1px solid #ddd !important;
+        background: white !important;
+        color: black !important;
+    }
+}
+
+/* ============================================
+   REDUCED MOTION ACCESSIBILITY
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    /* Disable hover transforms */
+    .tool-card:hover,
+    .feature-card:hover,
+    .pricing-card:hover,
+    .testimonial-card:hover,
+    .btn:hover,
+    .template-btn:hover,
+    .snippet-item:hover,
+    .floating-whatsapp:hover {
+        transform: none !important;
+    }
+    
+    /* Remove ripple effect */
+    .ripple {
+        display: none;
+    }
+    
+    /* Simplify animations */
+    .hero::before {
+        animation: none;
+    }
+    
+    .shape {
+        animation: none;
+    }
+}
+
+/* ============================================
+   FIXED: iOS Safari viewport height fix
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+    .hero {
+        min-height: -webkit-fill-available;
+    }
+    
+    .modal {
+        height: -webkit-fill-available;
+    }
+    
+    .ai-chat-container {
+        height: -webkit-fill-available;
+    }
+}
+
+/* ============================================
+   PILLAR BOX / EXTRA WIDE CONTAINERS
+   ============================================ */
+@media (min-aspect-ratio: 21/9) {
+    .hero-content {
+        max-width: 70%;
+    }
+    
+    .tools-grid,
+    .features-grid,
+    .pricing-grid {
+        max-width: 90%;
+    }
+}
+
+/* ============================================
+   ULTRA-WIDE MONITOR (32:9)
+   ============================================ */
+@media (min-width: 3000px) {
+    .hero h1 {
+        font-size: 5rem;
+    }
+    
+    .tools-grid,
+    .features-grid,
+    .pricing-grid,
+    .testimonials-grid {
+        grid-template-columns: repeat(5, 1fr);
+        max-width: 2400px;
+    }
+    
+    .footer-grid {
+        grid-template-columns: repeat(5, 1fr);
+        max-width: 2200px;
     }
 }
 
@@ -1959,6 +2665,33 @@ footer {
     font-weight: 600;
     color: var(--text-primary);
     font-size: 0.95rem;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.settings-btn,
+.security-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    padding: 0.4rem 0.5rem;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-btn:hover,
+.security-btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--primary-color);
+    transform: scale(1.1);
 }
 
 .logout-btn {
