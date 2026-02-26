@@ -5,11 +5,13 @@
   "description": "AI-Powered Productivity Tools with Mobile Money Payment Integration",
   "type": "module",
   "main": "index.html",
+  "bin": "server.js",
   "scripts": {
     "dev": "npx serve . -l 3000",
     "start": "npx serve .",
     "build": "node scripts/build.js",
     "build:prod": "NODE_ENV=production node scripts/build.js",
+    "build:linux": "pkg server.js --output ai-productivity-tools --targets node18-linux-x64",
     "lint": "eslint src/ --ext .js",
     "lint:fix": "eslint src/ --ext .js --fix",
     "format": "prettier --write \"src/**/*.js\"",
@@ -24,7 +26,15 @@
   "devDependencies": {
     "esbuild": "^0.20.0",
     "eslint": "^8.56.0",
-    "prettier": "^3.2.0"
+    "prettier": "^3.2.0",
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "assets": [
+      "index.html",
+      "**/*"
+    ],
+    "outputPath": "dist"
   },
   "engines": {
     "node": ">=18.0.0"
