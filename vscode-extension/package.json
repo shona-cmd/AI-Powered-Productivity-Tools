@@ -1,0 +1,71 @@
+{
+  "name": "ai-productivity-tools",
+  "displayName": "AI Productivity Tools",
+  "description": "AI-powered productivity tools including writing assistant, task manager, business toolkit, and student tools",
+  "version": "1.0.0",
+  "publisher": "ai-productivity-tools",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other",
+    "AI",
+    "Productivity"
+  ],
+  "keywords": [
+    "ai",
+    "productivity",
+    "gpt",
+    "openai",
+    "claude",
+    "writing",
+    "tasks"
+  ],
+  "activationEvents": [
+    "onCommand:ai-productivity-tools.openPanel"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ai-productivity-tools.openPanel",
+        "title": "AI Productivity Tools: Open Panel"
+      }
+    ],
+    "configuration": {
+      "title": "AI Productivity Tools",
+      "properties": {
+        "aiProductivityTools.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your OpenAI API Key for AI features"
+        },
+        "aiProductivityTools.anthropicKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your Anthropic API Key for Claude features"
+        },
+        "aiProductivityTools.defaultModel": {
+          "type": "string",
+          "default": "gpt-4",
+          "description": "Default AI model to use",
+          "enum": [
+            "gpt-4",
+            "gpt-4-turbo",
+            "gpt-3.5-turbo",
+            "claude-3-opus",
+            "claude-3-sonnet"
+          ]
+        }
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shona-cmd/AI-Powered-Productivity-Tools"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
