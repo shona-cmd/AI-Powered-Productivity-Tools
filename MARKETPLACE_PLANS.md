@@ -73,10 +73,20 @@ Tokens are used to access AI features:
 
 ## Billing
 
-- **Billing Cycle**: Monthly or annual
+### GitHub Marketplace Billing
+- **Monthly Billing**: All paid plans support monthly billing with automatic renewal
+- **Annual Billing**: All paid plans support annual billing with automatic renewal (save up to 20%)
 - **Payment Methods**: GitHub Marketplace (for GitHub subscribers), Mobile Money (selected regions)
-- **Cancellation**: Cancel anytime, no questions asked
-- **Refunds**: 30-day money-back guarantee
+- **Billing Cycle**: Monthly or annual - you choose at checkout
+- **Prorating**: Upgrades are applied immediately with prorated charges; downgrades take effect at the next billing cycle
+- **Cancellation**: Cancel anytime, no questions asked. Access continues until the end of the current billing period
+- **Refunds**: 30-day money-back guarantee for paid plans
+
+### GitHub Marketplace Specific Requirements
+- **Monthly and Annual Support**: All paid subscriptions must support both monthly and annual billing cycles as per GitHub Marketplace requirements
+- **Automatic Renewal**: Subscriptions automatically renew at the end of each billing period
+- **Payment Processing**: All payments are securely processed through GitHub's billing system
+- **Invoice Receipts**: Available through your GitHub account billing settings
 
 ---
 
@@ -104,4 +114,3 @@ A: We offer a 30-day money-back guarantee. Contact us for assistance.
 ---
 
 *Pricing effective as of November 2025. We reserve the right to modify pricing with 30 days notice.*
-

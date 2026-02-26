@@ -8,7 +8,7 @@
   ],
   "setup_url": "https://github.com/shona-cmd/AI-Powered-Productivity-Tools",
   "hook_attributes": {
-    "url": "https://github.com/shona-cmd/AI-Powered-Productivity-Tools"
+    "url": "https://ai-powered-productivity-tools-6tirxqs5s-naashons-projects.vercel.app/api/webhook"
   },
   "permissions": {
     "contents": "read",
@@ -17,6 +17,7 @@
   },
   "events": [
     "issues",
-    "pull_request"
+    "pull_request",
+    "marketplace_purchase"
   ]
 }

@@ -57,3 +57,9 @@ export {
     session,
     STORAGE_KEYS 
 } from './storage.js';
+
+// Subscription Management
+export { 
+    default as subscriptionManager, 
+    SubscriptionManager 
+} from './subscription.js';
