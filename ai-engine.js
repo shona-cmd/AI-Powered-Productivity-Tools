@@ -1,10 +1,30 @@
 
 /**
- * AI Engine - ULTIMATE AI Platform
- * The Strongest AI-Powered Productivity Suite
- * Features: GPT-4, Claude, Gemini, Image Generation, Code Analysis, and more
+ * AI Engine - Professional AI Integration Module
+ * Multi-provider AI capabilities with caching and offline support
+ * 
+ * @version 2.0.0
+ * @author AI Productivity Tools
+ * @description Features: GPT-4, Claude, Gemini, Image Generation, Code Analysis, and more
  */
 
+import { createLogger } from './src/core/logger.js';
+import { debounce, throttle } from './src/core/validation.js';
+
+const logger = createLogger('AIEngine');
+
+/**
+ * AI Model configurations
+ * @typedef {Object} ModelConfig
+ * @property {string} name - Display name
+ * @property {string} provider - Provider name
+ * @property {number} strength - Capability score (0-100)
+ * @property {string} endpoint - API endpoint
+ */
+
+/**
+ * AI Engine class providing multi-provider AI integration
+ */
 class AIEngine {
     constructor() {
         this.apiKey = localStorage.getItem('openai_api_key') || '';

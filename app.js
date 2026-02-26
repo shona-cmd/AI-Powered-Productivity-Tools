@@ -1676,14 +1676,91 @@ function generateStudentContent() {
     
     output.innerHTML = '<span class="loading"></span> Processing...';
     
-    setTimeout(() => {
-        const result = generateAIContent('student', { toolType, content });
-        output.innerHTML = result;
+    // Use AI engine if available, otherwise use fallback
+    if (aiEngine && aiEngine.generateStudentContent) {
+        aiEngine.generateStudentContent(toolType, content).then(result => {
+            output.innerHTML = result;
+            showNotification('Content generated successfully!', 'success');
+        }).catch(error => {
+            // Fallback to local generation
+            output.innerHTML = generateAIContent('student', { toolType, content });
+            showNotification('Content generated (offline mode)', 'success');
+        });
+    } else {
+        // Fallback to local generation
+        output.innerHTML = generateAIContent('student', { toolType, content });
         showNotification('Content generated successfully!', 'success');
-    }, 1500);
+    }
 }
 
-// AI Content Generation (Now handled by ai-engine.js)
+// AI Content Generation Fallback (when AI engine is not available)
+function generateAIContent(type, data) {
+    const { toolType, content } = data;
+    
+    // Fallback responses when AI is not available
+    switch(toolType) {
+        case 'summary':
+            return `<h3>📝 Content Summary</h3>
+<p>Here's a summary of your content:</p>
+<ul>
+<li><strong>Key Point 1:</strong> ${content.substring(0, 50)}...</li>
+<li><strong>Key Point 2:</strong> The content discusses important topics related to ${content.split(' ').slice(0, 3).join(' ')}</li>
+<li><strong>Key Point 3:</strong> Overall, the content provides valuable insights</li>
+</ul>
+<p><em>Note: Connect your API key for AI-powered summaries</em></p>`;
+            
+        case 'questions':
+            return `<h3>❓ Practice Questions</h3>
+<p>Here are some questions based on your content:</p>
+<ol>
+<li><strong>Easy:</strong> What is the main topic discussed in the content?</li>
+<li><strong>Medium:</strong> How does the content support its main argument?</li>
+<li><strong>Hard:</strong> What are the implications of the ideas presented?</li>
+</ol>
+<p><em>Note: Connect your API key for AI-generated questions</em></p>`;
+            
+        case 'plan':
+            return `<h3>📅 Study Plan</h3>
+<p>Recommended study schedule:</p>
+<ul>
+<li><strong>Day 1-2:</strong> Review and understand the core concepts</li>
+<li><strong>Day 3-4:</strong> Practice with examples from the content</li>
+<li><strong>Day 5:</strong> Test your knowledge with self-assessment</li>
+<li><strong>Day 6-7:</strong> Review and reinforce learning</li>
+</ul>
+<p><em>Note: Connect your API key for personalized AI study plans</em></p>`;
+            
+        case 'essay':
+            return `<h3>✍️ Essay Structure</h3>
+<p>Recommended essay outline:</p>
+<ol>
+<li><strong>Introduction:</strong> Hook + Background + Thesis Statement</li>
+<li><strong>Body Paragraph 1:</strong> Main argument with evidence</li>
+<li><strong>Body Paragraph 2:</strong> Supporting argument with examples</li>
+<li><strong>Body Paragraph 3:</strong> Counter-argument and rebuttal</li>
+<li><strong>Conclusion:</strong> Restate thesis + Summary + Call to action</li>
+</ol>
+<p><em>Note: Connect your API key for AI-powered essay assistance</em></p>`;
+            
+        default:
+            return `<p>Content processed. Tool type: ${toolType}</p>
+<p><em>Connect your API key for AI-powered content generation</em></p>`;
+    }
+}
+
+// Initialize Task Manager
+function initTaskManager() {
+    // Load saved tasks
+    loadTasks();
+    
+    // Set up enter key for adding tasks
+    const taskInput = document.getElementById('newTask');
+    if (taskInput) {
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+    }
+}
 
 // Utility Functions
 function copyToClipboard(elementId) {
@@ -1770,6 +1847,8 @@ document.head.appendChild(style);
 window.openTool = openTool;
 window.closeModal = closeModal;
 window.initTool = initTool;
+window.initTaskManager = initTaskManager;
+window.toggleTheme = toggleTheme;
 window.generateWriting = generateWriting;
 window.addTask = addTask;
 window.toggleTask = toggleTask;
@@ -1777,6 +1856,7 @@ window.deleteTask = deleteTask;
 window.getAITaskSuggestions = getAITaskSuggestions;
 window.generateBusinessDoc = generateBusinessDoc;
 window.generateStudentContent = generateStudentContent;
+window.generateAIContent = generateAIContent;
 window.copyToClipboard = copyToClipboard;
 
 // Export AI Chat functions

@@ -1,0 +1,50 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Build outputs
+dist
+build
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Test files
+coverage
+*.test.js
+*.spec.js
+__tests__
+
+# Documentation
+*.md
+!README.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Development files
+.env
+.env.local
+.env.*.local
+
+# Demo and documentation folders (not needed in production)
+demo/
+documentation/
+sales-materials/
+packages/
+
+# Vercel specific
+.vercel
+.vercel_output
+vercel-output.log
+
+# Bundle folder
+bundle/
