@@ -809,10 +809,10 @@ class AuthSystem {
 let authSystem;
 document.addEventListener('DOMContentLoaded', () => {
     authSystem = new AuthSystem();
+    // Expose immediately so inline onclick handlers can rely on window.authSystem.
+    window.authSystem = authSystem;
 });
 
-// Expose globally
-window.authSystem = authSystem;
 
 /**
  * Two-Factor Authentication (2FA) System

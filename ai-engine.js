@@ -529,4 +529,7 @@ Provide:
 
 // Export instance
 window.aiEngine = new AIEngine();
+// Also expose a flag used by UI guards.
+window.__aiEngineReady = true;
+
 

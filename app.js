@@ -1,4 +1,4 @@
-/**
+s/**
  * AI Productivity Tools - Enhanced Main Application
  * Phase 1 + Phase 2 Implementation
  */
@@ -277,13 +277,28 @@ function initSmoothScroll() {
 
 // ==================== TOOL MODAL ====================
 function openTool(toolName) {
-    // Check if user is logged in before opening tool
-    if (!authSystem || !authSystem.isLoggedIn()) {
-        showNotification('Please login to access the tools', 'warning');
-        authSystem.openAuthModal('login');
+    // Ensure required global systems exist before doing anything.
+    // Buttons can be clicked very early; without guards, this throws.
+    if (!window.authSystem || typeof window.authSystem.isLoggedIn !== 'function') {
+        showNotification('Auth is still loading. Please wait…', 'warning');
         return;
     }
-    
+    if (!window.paymentSystem || typeof window.paymentSystem.getTokenBalance !== 'function') {
+        showNotification('Payments are still loading. Please wait…', 'warning');
+        return;
+    }
+    if (!window.aiEngine || window.__aiEngineReady !== true) {
+        showNotification('AI engine is still loading. Please wait…', 'warning');
+        return;
+    }
+
+    // Check if user is logged in before opening tool
+    if (!window.authSystem.isLoggedIn()) {
+        showNotification('Please login to access the tools', 'warning');
+        window.authSystem.openAuthModal('login');
+        return;
+    }
+
     AppState.currentTool = toolName;
     let content = '';
 

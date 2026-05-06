@@ -526,8 +526,8 @@ class PaymentSystem {
 let paymentSystem;
 document.addEventListener('DOMContentLoaded', () => {
     paymentSystem = new PaymentSystem();
+    // Expose immediately so inline onclick handlers can rely on window.paymentSystem.
+    window.paymentSystem = paymentSystem;
 });
 
-// Expose globally
-window.paymentSystem = paymentSystem;
 
